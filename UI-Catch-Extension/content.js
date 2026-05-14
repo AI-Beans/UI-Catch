@@ -4,28 +4,44 @@ if (!window.__UI_CATCH_ACTIVE) {
   
   console.log('🐾 UI-Catch: 探针已成功注入！');
 
+  const createSVG = (svgString) => {
+    const doc = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+    return document.adoptNode(doc.documentElement);
+  };
+
   // 1. 注入高亮样式
   const styleId = 'ui-catch-styles';
   if (!document.getElementById(styleId)) {
     const style = document.createElement('style');
     style.id = styleId;
-    style.innerHTML = `
-      .ui-catch-hover { 
-        outline: 3px solid #deff9a !important; 
-        outline-offset: -3px !important; 
-        background-color: rgba(222, 255, 154, 0.2) !important; 
-        cursor: crosshair !important; 
-        transition: all 0.1s; 
-      }
-    `;
+    style.textContent = '.ui-catch-hover { outline: 3px solid #deff9a !important; outline-offset: -3px !important; background-color: rgba(222, 255, 154, 0.2) !important; cursor: crosshair !important; transition: all 0.1s; }';
     document.head.appendChild(style);
   }
 
-  // 2. 页面顶部弹出提示
-  const toast = document.createElement('div');
-  toast.innerHTML = 'UI-Catch 抓抓已开启！请点击目标元素 (按 Esc 取消)';
-  toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(15,15,15,0.9);color:#deff9a;padding:10px 24px;border-radius:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:13px;font-weight:600;z-index:2147483647;box-shadow:0 8px 32px rgba(0,0,0,0.3);border:1px solid rgba(222,255,154,0.3);backdrop-filter:blur(12px);pointer-events:none;letter-spacing:0.3px;';
-  document.body.appendChild(toast);
+  // 2. 模式切换工具栏 (Shadow DOM)
+  let currentMode = 'pick';
+  const toolbarHost = document.createElement('div');
+  toolbarHost.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:2147483647;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;';
+  const toolbarShadow = toolbarHost.attachShadow({ mode: 'open' });
+  const toolbarStyle = document.createElement('style');
+  toolbarStyle.textContent = '.tb{display:flex;align-items:center;gap:2px;background:rgba(15,15,15,0.92);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:4px;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.3);} .mb{padding:8px 16px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.5);background:transparent;font-family:inherit;} .mb:hover{color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.08);} .mb.on{color:#000;background:#deff9a;} .cb{padding:8px 10px;border:none;border-radius:8px;cursor:pointer;color:#fff;background:transparent;transition:all 0.2s;display:flex;align-items:center;justify-content:center;} .cb:hover{color:#fff;background:rgba(255,255,255,0.1);}';
+  const toolbar = document.createElement('div');
+  toolbar.setAttribute('class', 'tb');
+
+  const pickBtn = document.createElement('button');
+  pickBtn.setAttribute('class', 'mb on');
+  pickBtn.textContent = '精准选取';
+
+  const marqueeBtn = document.createElement('button');
+  marqueeBtn.setAttribute('class', 'mb');
+  marqueeBtn.textContent = '区域框选';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.setAttribute('class', 'cb');
+  closeBtn.textContent = '\u00D7';
+
+  document.body.appendChild(toolbarHost);
+
 
   // --- 自定义通知系统 (Shadow DOM 封装) ---
   const showModal = (type, data) => {
@@ -34,6 +50,7 @@ if (!window.__UI_CATCH_ACTIVE) {
     
     // Shadow DOM Host
     const host = document.createElement('div');
+    host.setAttribute('data-ui-catch-modal', '');
     host.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483647;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;';
     
     const shadow = host.attachShadow({ mode: 'open' });
@@ -48,10 +65,10 @@ if (!window.__UI_CATCH_ACTIVE) {
     
     // 关闭按钮
     const closeBtn = document.createElement('button');
-    closeBtn.style.cssText = 'position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;padding:0;transition:all 0.2s;';
-    closeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-    closeBtn.onmouseenter = () => { closeBtn.style.background='rgba(255,255,255,0.15)'; closeBtn.style.color='#fff'; };
-    closeBtn.onmouseleave = () => { closeBtn.style.background='rgba(255,255,255,0.08)'; closeBtn.style.color='rgba(255,255,255,0.6)'; };
+    closeBtn.textContent = '\u00D7';
+    closeBtn.style.cssText = 'position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.08);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:300;line-height:1;padding:0;transition:all 0.2s;';
+    closeBtn.onmouseenter = () => { closeBtn.style.background='rgba(255,255,255,0.15)'; };
+    closeBtn.onmouseleave = () => { closeBtn.style.background='rgba(255,255,255,0.08)'; };
     
     // 头部：图标 + 标题
     const header = document.createElement('div');
@@ -59,7 +76,7 @@ if (!window.__UI_CATCH_ACTIVE) {
     const iconSvg = isSuccess
       ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#deff9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
       : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff9a9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
-    header.innerHTML = iconSvg;
+    header.appendChild(createSVG(iconSvg));
     
     const titleSpan = document.createElement('span');
     titleSpan.style.cssText = `font-size:18px;font-weight:700;color:${accentColor};`;
@@ -299,37 +316,197 @@ if (!window.__UI_CATCH_ACTIVE) {
 
   // --- /元素分析工具集 ---
 
-  // 3. 通用清理函数 (恢复页面原状)
+  // --- 区域框选工具集 ---
+
+  const findElementsInRect = (rect) => {
+    const found = [];
+    const walk = (root) => {
+      for (const child of root.children) {
+        if (child === marquee || child === toolbarHost || child.id === styleId) continue;
+        const r = child.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0 &&
+            r.left >= rect.left && r.top >= rect.top &&
+            r.right <= rect.right && r.bottom <= rect.bottom) {
+          found.push(child);
+        }
+        if (child.children.length > 0) walk(child);
+      }
+    };
+    walk(document.body);
+    return found;
+  };
+
+  // Lowest Common Ancestor: 找到能装下所有被框元素的最近公共父节点
+  const getLowestCommonAncestor = (elements) => {
+    if (elements.length === 0) return document.body;
+    if (elements.length === 1) return elements[0];
+
+    const getPath = (el) => {
+      const path = [];
+      let node = el;
+      while (node) { path.unshift(node); node = node.parentElement; }
+      return path;
+    };
+
+    const paths = elements.map(getPath);
+    let lca = paths[0][0];
+    const minLen = Math.min(...paths.map(p => p.length));
+
+    for (let i = 0; i < minLen; i++) {
+      if (paths.every(p => p[i] === paths[0][i])) {
+        lca = paths[0][i];
+      } else break;
+    }
+
+    if (lca === document.body || lca === document.documentElement) {
+      return elements[0].parentElement;
+    }
+    return lca;
+  };
+
+  const flashElement = (el) => {
+    el.style.transition = 'outline 0.3s ease, background-color 0.3s ease';
+    el.style.outline = '3px solid #deff9a';
+    el.style.backgroundColor = 'rgba(222,255,154,0.15)';
+    setTimeout(() => {
+      el.style.outline = '';
+      el.style.backgroundColor = '';
+      setTimeout(() => { el.style.transition = ''; }, 300);
+    }, 800);
+  };
+
+  // --- /区域框选工具集 ---
+
+  // 3. Marquee 覆盖层
+  const marquee = document.createElement('div');
+  marquee.style.cssText = 'position:fixed;border:2px dashed #deff9a;background:rgba(222,255,154,0.08);z-index:2147483646;pointer-events:none;display:none;border-radius:4px;';
+  document.body.appendChild(marquee);
+
+  let dragState = 'idle';
+  let startX = 0, startY = 0;
+  const DRAG_THRESHOLD = 5;
+
+  // 工具栏组装 (依赖 createSVG 和 marquee 已就绪)
+  pickBtn.addEventListener('click', () => {
+    currentMode = 'pick';
+    pickBtn.setAttribute('class', 'mb on');
+    marqueeBtn.setAttribute('class', 'mb');
+  });
+  marqueeBtn.addEventListener('click', () => {
+    currentMode = 'marquee';
+    marqueeBtn.setAttribute('class', 'mb on');
+    pickBtn.setAttribute('class', 'mb');
+    document.querySelectorAll('.ui-catch-hover').forEach(el => el.classList.remove('ui-catch-hover'));
+    marquee.style.display = 'none';
+    dragState = 'idle';
+  });
+  closeBtn.addEventListener('click', () => cleanup());
+  toolbar.appendChild(pickBtn);
+  toolbar.appendChild(marqueeBtn);
+  toolbar.appendChild(closeBtn);
+  toolbarShadow.appendChild(toolbarStyle);
+  toolbarShadow.appendChild(toolbar);
+
+  let over, out, onMousedown, onMousemove, onMouseup, keydown;
+
   const cleanup = () => {
     document.removeEventListener('mouseover', over, true);
     document.removeEventListener('mouseout', out, true);
-    document.removeEventListener('click', click, true);
+    document.removeEventListener('mousedown', onMousedown, true);
+    document.removeEventListener('mousemove', onMousemove, true);
+    document.removeEventListener('mouseup', onMouseup, true);
     document.removeEventListener('keydown', keydown, true);
     document.getElementById(styleId)?.remove();
-    if(toast && toast.parentNode) toast.remove();
+    if (marquee && marquee.parentNode) marquee.remove();
+    if (toolbarHost && toolbarHost.parentNode) toolbarHost.remove();
     document.querySelectorAll('.ui-catch-hover').forEach(el => el.classList.remove('ui-catch-hover'));
+    dragState = 'idle';
     window.__UI_CATCH_ACTIVE = false;
     console.log('🐾 UI-Catch: 探针已安全退出。');
   };
 
-  // 4. 核心拦截器
-  const over = e => { e.target.classList.add('ui-catch-hover'); };
-  const out = e => { e.target.classList.remove('ui-catch-hover'); };
-  
-  const keydown = e => {
+  // 判断是否为插件自身 UI 元素 (跳过拦截)
+  const isOwnUI = (el) => el === toolbarHost || el === marquee || el.closest?.('[data-ui-catch-modal]');
+
+  // 4. 模式分流: pick=精准选取 / marquee=区域框选
+  over = e => {
+    if (currentMode !== 'pick' || isOwnUI(e.target)) return;
+    e.target.classList.add('ui-catch-hover');
+  };
+  out = e => {
+    if (currentMode !== 'pick' || isOwnUI(e.target)) return;
+    e.target.classList.remove('ui-catch-hover');
+  };
+
+  onMousedown = e => {
+    if (e.button !== 0 || isOwnUI(e.target)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (currentMode === 'marquee') {
+      startX = e.clientX;
+      startY = e.clientY;
+      dragState = 'pending';
+    }
+  };
+
+  onMousemove = e => {
+    if (currentMode !== 'marquee' || dragState === 'idle') return;
+    if (dragState === 'pending') {
+      if (Math.abs(e.clientX - startX) > DRAG_THRESHOLD || Math.abs(e.clientY - startY) > DRAG_THRESHOLD) {
+        dragState = 'dragging';
+      }
+    }
+    if (dragState === 'dragging') {
+      marquee.style.display = 'block';
+      marquee.style.left = Math.min(startX, e.clientX) + 'px';
+      marquee.style.top = Math.min(startY, e.clientY) + 'px';
+      marquee.style.width = Math.abs(e.clientX - startX) + 'px';
+      marquee.style.height = Math.abs(e.clientY - startY) + 'px';
+    }
+  };
+
+  onMouseup = e => {
+    if (isOwnUI(e.target)) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (currentMode === 'pick') {
+      captureSingle(e);
+    } else if (currentMode === 'marquee' && dragState !== 'idle') {
+      if (dragState === 'dragging') {
+        marquee.style.display = 'none';
+        const rect = {
+          left: Math.min(startX, e.clientX),
+          top: Math.min(startY, e.clientY),
+          right: Math.max(startX, e.clientX),
+          bottom: Math.max(startY, e.clientY)
+        };
+        const elements = findElementsInRect(rect);
+        if (elements.length === 0) {
+          showModal('error', { title: '未选中任何元素', message: '框选区域内没有找到元素，请重新框选。' });
+          dragState = 'idle';
+          return;
+        }
+        const container = getLowestCommonAncestor(elements);
+        flashElement(container);
+        captureArea(container, elements.length);
+      }
+      dragState = 'idle';
+    }
+  };
+
+  keydown = e => {
     if (e.key === 'Escape') {
+      marquee.style.display = 'none';
+      dragState = 'idle';
       cleanup();
     }
   };
 
-  const click = async (e) => {
-    e.preventDefault(); 
-    e.stopPropagation();
-    
+  // 单元素捕获
+  const captureSingle = (e) => {
     const el = e.target;
     el.classList.remove('ui-catch-hover');
-    
-    console.log("🎯 UI-Catch 捕获到原始 DOM 节点:", el);
 
     const cls = (el.getAttribute('class') || '').replace('ui-catch-hover', '').trim();
     const tag = el.tagName.toLowerCase();
@@ -339,9 +516,7 @@ if (!window.__UI_CATCH_ACTIVE) {
     if (txt.length > 40) txt = txt.substring(0, 40) + '...';
     const fp = `<${tag}${id}${cStr}>${txt}</${tag}>`;
 
-    // 优先级定位：ID → data-testid → 唯一 selector → CSS Path → XPath
-    let bestSelector = '';
-    let selectorLabel = '';
+    let bestSelector = '', selectorLabel = '';
     if (el.id && /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(el.id)) {
       bestSelector = '#' + CSS.escape(el.id);
       selectorLabel = 'ID';
@@ -361,24 +536,52 @@ if (!window.__UI_CATCH_ACTIVE) {
 
     const componentInfo = getComponentInfo(el);
 
-    // 组装 Prompt — 只展示最短唯一标识
     let prompt = `我在调整前端 UI。请帮我修改下面这个特定元素：\n\n【特征指纹】\n${fp}\n\n【定位${selectorLabel}】\n${bestSelector}`;
-
     if (componentInfo.framework && componentInfo.componentName) {
       prompt += `\n\n【组件】\n<${componentInfo.componentName}> (${componentInfo.framework})`;
     }
-
     prompt += `\n\n【我的需求】\n1. `;
 
-    console.log("📝 准备复制的 Prompt:\n", prompt);
-    
     showModal('success', { title: 'UI-Catch 捕捉成功！', prompt: prompt, autoDismiss: false });
     cleanup();
   };
-  
-  // 挂载监听器（必须在捕获阶段拦截 true，防止被业务代码阻止）
+
+  // 区域捕获
+  const captureArea = (container, childCount) => {
+    const cls = (container.getAttribute('class') || '').replace('ui-catch-hover', '').trim();
+    const tag = container.tagName.toLowerCase();
+    const id = container.id ? ` id="${container.id}"` : '';
+    const cStr = cls ? ` class="${cls}"` : '';
+    let txt = (container.innerText || container.textContent || '').replace(/\n/g, ' ').trim();
+    if (txt.length > 60) txt = txt.substring(0, 60) + '...';
+    const fp = `<${tag}${id}${cStr}>${txt}</${tag}>`;
+
+    let bestSelector = '', selectorLabel = '';
+    if (container.id && /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(container.id)) {
+      bestSelector = '#' + CSS.escape(container.id);
+      selectorLabel = 'ID';
+    } else {
+      bestSelector = getUniqueSelector(container);
+      selectorLabel = 'Selector';
+    }
+
+    const componentInfo = getComponentInfo(container);
+
+    let prompt = `我在调整前端 UI 布局。请帮我重构下面这个【区块/容器】及它的内部结构：\n\n【容器特征指纹】\n${fp}\n\n【定位${selectorLabel}】\n${bestSelector}\n\n【包含子元素】${childCount} 个`;
+    if (componentInfo.framework && componentInfo.componentName) {
+      prompt += `\n\n【组件】\n<${componentInfo.componentName}> (${componentInfo.framework})`;
+    }
+    prompt += `\n\n【我的需求】\n1. `;
+
+    console.log("📝 区域 Prompt:\n", prompt);
+    showModal('success', { title: 'UI-Catch 区域捕捉成功！', prompt: prompt, autoDismiss: false });
+    cleanup();
+  };
+
   document.addEventListener('mouseover', over, true);
   document.addEventListener('mouseout', out, true);
-  document.addEventListener('click', click, true);
+  document.addEventListener('mousedown', onMousedown, true);
+  document.addEventListener('mousemove', onMousemove, true);
+  document.addEventListener('mouseup', onMouseup, true);
   document.addEventListener('keydown', keydown, true);
 }
