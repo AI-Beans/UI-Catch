@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "UI-Catch 🐾",
+  "version": "1.0",
+  "description": "AI DOM Picker - 让 Cursor 指哪改哪的可爱抓抓",
+  "action": {
+    "default_title": "唤醒 UI-Catch 🐾"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["activeTab", "scripting"],
+  "web_accessible_resources": [{
+    "resources": ["content.js"],
+    "matches": ["<all_urls>"]
+  }]
+}
