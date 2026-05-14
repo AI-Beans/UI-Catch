@@ -47,129 +47,166 @@ if (!window.__UI_CATCH_ACTIVE) {
   const showModal = (type, data) => {
     const isSuccess = type === 'success';
     const accentColor = isSuccess ? '#deff9a' : '#ff9a9a';
-    
-    // Shadow DOM Host
+
     const host = document.createElement('div');
     host.setAttribute('data-ui-catch-modal', '');
     host.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483647;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;';
-    
+
     const shadow = host.attachShadow({ mode: 'open' });
-    
-    // 背景遮罩
+
     const backdrop = document.createElement('div');
     backdrop.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);opacity:0;transition:opacity 0.3s ease;';
-    
-    // 卡片主体
+
     const card = document.createElement('div');
     card.style.cssText = 'position:relative;background:rgba(15,15,15,0.85);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:28px 32px;max-width:480px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.05);color:#fff;transform:translateY(20px);opacity:0;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);';
-    
+
     // 关闭按钮
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '\u00D7';
     closeBtn.style.cssText = 'position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.08);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:300;line-height:1;padding:0;transition:all 0.2s;';
     closeBtn.onmouseenter = () => { closeBtn.style.background='rgba(255,255,255,0.15)'; };
     closeBtn.onmouseleave = () => { closeBtn.style.background='rgba(255,255,255,0.08)'; };
-    
-    // 头部：图标 + 标题
+
+    // 头部
     const header = document.createElement('div');
-    header.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:20px;';
+    header.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:16px;';
     const iconSvg = isSuccess
-      ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#deff9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
-      : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff9a9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+      ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#deff9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+      : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff9a9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
     header.appendChild(createSVG(iconSvg));
-    
     const titleSpan = document.createElement('span');
-    titleSpan.style.cssText = `font-size:18px;font-weight:700;color:${accentColor};`;
+    titleSpan.style.cssText = `font-size:16px;font-weight:700;color:${accentColor};`;
     titleSpan.textContent = data.title || '';
     header.appendChild(titleSpan);
-    
-    // 内容区域
+
+    // 内容区
     const body = document.createElement('div');
     body.style.cssText = 'color:rgba(255,255,255,0.85);font-size:14px;line-height:1.6;';
-    
-    if (data.prompt) {
-      const msgDiv = document.createElement('div');
-      msgDiv.style.cssText = 'margin-bottom:12px;font-size:13px;color:rgba(255,255,255,0.6);';
-      msgDiv.textContent = '可编辑后复制到剪贴板';
-      body.appendChild(msgDiv);
-      
-      const textarea = document.createElement('textarea');
-      textarea.value = data.prompt;
-      textarea.style.cssText = 'width:100%;min-height:200px;max-height:400px;resize:vertical;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 16px;font-family:"SF Mono",Monaco,Inconsolata,"Fira Code","Cascadia Code",monospace;font-size:12px;color:#e8e8e8;line-height:1.6;outline:none;box-sizing:border-box;';
-      textarea.onfocus = () => { textarea.style.borderColor = 'rgba(222,255,154,0.5)'; };
-      textarea.onblur = () => { textarea.style.borderColor = 'rgba(255,255,255,0.1)'; };
-      body.appendChild(textarea);
 
-      const bottomRow = document.createElement('div');
-      bottomRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-top:14px;';
+    if (data.summary) {
+      // 元素摘要行
+      const summaryRow = document.createElement('div');
+      summaryRow.style.cssText = 'padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:8px;margin-bottom:16px;font-size:13px;color:rgba(255,255,255,0.7);font-family:"SF Mono",Monaco,monospace;word-break:break-all;';
+      summaryRow.textContent = data.summary;
+      body.appendChild(summaryRow);
+    }
 
-      const badge = document.createElement('div');
-      badge.style.cssText = 'display:none;padding:4px 10px;background:rgba(222,255,154,0.12);border:1px solid rgba(222,255,154,0.25);border-radius:20px;font-size:11px;font-weight:600;color:#deff9a;letter-spacing:0.5px;';
-      badge.textContent = '已复制到剪贴板';
+    // 系统提示预设
+    const sysLabel = document.createElement('div');
+    sysLabel.style.cssText = 'font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;';
+    sysLabel.textContent = '系统提示预设';
+    body.appendChild(sysLabel);
 
-      const copyBtn = document.createElement('button');
-      copyBtn.style.cssText = 'padding:8px 20px;background:#deff9a;color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;';
-      copyBtn.textContent = '复制到剪贴板';
-      copyBtn.onmouseenter = () => { copyBtn.style.background = '#e8ffb5'; copyBtn.style.transform = 'scale(1.02)'; };
-      copyBtn.onmouseleave = () => { copyBtn.style.background = '#deff9a'; copyBtn.style.transform = 'scale(1)'; };
-      copyBtn.addEventListener('click', async () => {
-        const text = textarea.value;
-        try {
-          if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(text);
-          } else {
-            const ta = document.createElement('textarea');
-            ta.value = text; document.body.appendChild(ta); ta.select();
-            document.execCommand('copy'); ta.remove();
-          }
-          copyBtn.textContent = '已复制';
-          copyBtn.style.background = 'rgba(222,255,154,0.2)';
-          copyBtn.style.color = '#deff9a';
-          badge.style.display = 'inline-block';
-        } catch(e) {
-          copyBtn.textContent = '复制失败';
-          copyBtn.style.background = 'rgba(255,154,154,0.2)';
-          copyBtn.style.color = '#ff9a9a';
-        }
+    const sysTextarea = document.createElement('textarea');
+    sysTextarea.value = data.systemPreset || localStorage.getItem('ui-catch-system') || '我在调整前端 UI。请帮我处理下面这个元素：';
+    sysTextarea.style.cssText = 'width:100%;min-height:56px;resize:vertical;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13px;color:#e8e8e8;line-height:1.5;outline:none;box-sizing:border-box;margin-bottom:14px;';
+    sysTextarea.onfocus = () => { sysTextarea.style.borderColor = 'rgba(222,255,154,0.4)'; };
+    sysTextarea.onblur = () => { sysTextarea.style.borderColor = 'rgba(255,255,255,0.08)'; };
+    body.appendChild(sysTextarea);
+
+    // 我的需求
+    const demandLabel = document.createElement('div');
+    demandLabel.style.cssText = 'font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;';
+    demandLabel.textContent = '我的需求';
+    body.appendChild(demandLabel);
+
+    const demandTextarea = document.createElement('textarea');
+    demandTextarea.value = localStorage.getItem('ui-catch-demand') || '';
+    demandTextarea.placeholder = '例如：改成圆角按钮，颜色换成蓝色...';
+    demandTextarea.style.cssText = 'width:100%;min-height:80px;resize:vertical;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13px;color:#e8e8e8;line-height:1.5;outline:none;box-sizing:border-box;margin-bottom:14px;';
+    demandTextarea.onfocus = () => { demandTextarea.style.borderColor = 'rgba(222,255,154,0.4)'; };
+    demandTextarea.onblur = () => { demandTextarea.style.borderColor = 'rgba(255,255,255,0.08)'; };
+    body.appendChild(demandTextarea);
+
+    // 元素详情（可折叠）
+    if (data.details) {
+      const detailsToggle = document.createElement('button');
+      detailsToggle.style.cssText = 'width:100%;text-align:left;padding:8px 0;background:none;border:none;color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:8px;font-family:inherit;';
+      detailsToggle.innerHTML = '<span style="font-size:10px;">▶</span> 元素详情';
+
+      const detailsPanel = document.createElement('div');
+      detailsPanel.style.cssText = 'display:none;padding:12px 14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:8px;margin-bottom:16px;font-family:"SF Mono",Monaco,monospace;font-size:12px;color:rgba(255,255,255,0.65);line-height:1.7;white-space:pre-wrap;word-break:break-all;';
+      detailsPanel.textContent = data.details;
+
+      let expanded = false;
+      detailsToggle.addEventListener('click', () => {
+        expanded = !expanded;
+        detailsPanel.style.display = expanded ? 'block' : 'none';
+        detailsToggle.innerHTML = `<span style="font-size:10px;">${expanded ? '▼' : '▶'}</span> 元素详情`;
       });
 
-      bottomRow.appendChild(badge);
-      bottomRow.appendChild(copyBtn);
-      body.appendChild(bottomRow);
-    } else if (data.message) {
-      body.style.whiteSpace = 'pre-line';
-      body.textContent = data.message;
+      body.appendChild(detailsToggle);
+      body.appendChild(detailsPanel);
     }
-    
+
+    // 底部操作栏
+    const bottomRow = document.createElement('div');
+    bottomRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-top:8px;';
+
+    const badge = document.createElement('div');
+    badge.style.cssText = 'display:none;padding:4px 10px;background:rgba(222,255,154,0.12);border:1px solid rgba(222,255,154,0.25);border-radius:20px;font-size:11px;font-weight:600;color:#deff9a;letter-spacing:0.5px;';
+    badge.textContent = '已复制到剪贴板';
+
+    const copyBtn = document.createElement('button');
+    copyBtn.style.cssText = 'padding:8px 20px;background:#deff9a;color:#000;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;';
+    copyBtn.textContent = '复制到剪贴板';
+    copyBtn.onmouseenter = () => { copyBtn.style.background = '#e8ffb5'; copyBtn.style.transform = 'scale(1.02)'; };
+    copyBtn.onmouseleave = () => { copyBtn.style.background = '#deff9a'; copyBtn.style.transform = 'scale(1)'; };
+    copyBtn.addEventListener('click', async () => {
+      const parts = [sysTextarea.value.trim()];
+      if (data.details) parts.push(data.details);
+      const demand = demandTextarea.value.trim();
+      if (demand) parts.push('【我的需求】\n' + demand);
+      const text = parts.join('\n\n') + '\n';
+
+      localStorage.setItem('ui-catch-system', sysTextarea.value);
+      localStorage.setItem('ui-catch-demand', demandTextarea.value);
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); ta.remove();
+        }
+        copyBtn.textContent = '已复制';
+        copyBtn.style.background = 'rgba(222,255,154,0.2)';
+        copyBtn.style.color = '#deff9a';
+        badge.style.display = 'inline-block';
+      } catch(e) {
+        copyBtn.textContent = '复制失败';
+        copyBtn.style.background = 'rgba(255,154,154,0.2)';
+        copyBtn.style.color = '#ff9a9a';
+      }
+    });
+
+    bottomRow.appendChild(badge);
+    bottomRow.appendChild(copyBtn);
+    body.appendChild(bottomRow);
+
     card.appendChild(closeBtn);
     card.appendChild(header);
     card.appendChild(body);
     shadow.appendChild(backdrop);
     shadow.appendChild(card);
     document.body.appendChild(host);
-    
-    // 入场动画
+
     requestAnimationFrame(() => {
       backdrop.style.opacity = '1';
       card.style.transform = 'translateY(0)';
       card.style.opacity = '1';
     });
-    
-    let autoDismissTimer;
+
     const dismiss = () => {
-      if (autoDismissTimer) clearTimeout(autoDismissTimer);
       backdrop.style.opacity = '0';
       card.style.transform = 'translateY(10px)';
       card.style.opacity = '0';
       setTimeout(() => host.remove(), 350);
     };
-    
+
     closeBtn.addEventListener('click', dismiss);
     backdrop.addEventListener('click', dismiss);
-    
-    if (isSuccess && data.autoDismiss !== false) {
-      autoDismissTimer = setTimeout(dismiss, 4000);
-    }
   };
   // --- /自定义通知系统 ---
 
@@ -535,14 +572,17 @@ if (!window.__UI_CATCH_ACTIVE) {
     }
 
     const componentInfo = getComponentInfo(el);
-
-    let prompt = `我在调整前端 UI。请帮我修改下面这个特定元素：\n\n【特征指纹】\n${fp}\n\n【定位${selectorLabel}】\n${bestSelector}`;
+    const summary = `<${tag}> · ${bestSelector}`;
+    let details = `【特征指纹】\n${fp}\n\n【定位${selectorLabel}】\n${bestSelector}`;
     if (componentInfo.framework && componentInfo.componentName) {
-      prompt += `\n\n【组件】\n<${componentInfo.componentName}> (${componentInfo.framework})`;
+      details += `\n\n【组件】\n<${componentInfo.componentName}> (${componentInfo.framework})`;
     }
-    prompt += `\n\n【我的需求】\n1. `;
 
-    showModal('success', { title: 'UI-Catch 捕捉成功！', prompt: prompt, autoDismiss: false });
+    showModal('success', {
+      title: 'UI-Catch 捕捉成功！',
+      summary: summary,
+      details: details
+    });
     cleanup();
   };
 
@@ -566,15 +606,17 @@ if (!window.__UI_CATCH_ACTIVE) {
     }
 
     const componentInfo = getComponentInfo(container);
-
-    let prompt = `我在调整前端 UI。请帮我处理下面这个【区块/容器】：\n\n【容器特征指纹】\n${fp}\n\n【定位${selectorLabel}】\n${bestSelector}\n\n【包含子元素】${childCount} 个`;
+    const summary = `<${tag}> · ${bestSelector} · ${childCount}个子元素`;
+    let details = `【容器特征指纹】\n${fp}\n\n【定位${selectorLabel}】\n${bestSelector}\n\n【包含子元素】${childCount} 个`;
     if (componentInfo.framework && componentInfo.componentName) {
-      prompt += `\n\n【组件】\n<${componentInfo.componentName}> (${componentInfo.framework})`;
+      details += `\n\n【组件】\n<${componentInfo.componentName}> (${componentInfo.framework})`;
     }
-    prompt += `\n\n【我的需求】\n1. `;
 
-    console.log("📝 区域 Prompt:\n", prompt);
-    showModal('success', { title: 'UI-Catch 区域捕捉成功！', prompt: prompt, autoDismiss: false });
+    showModal('success', {
+      title: 'UI-Catch 区域捕捉成功！',
+      summary: summary,
+      details: details
+    });
     cleanup();
   };
 
