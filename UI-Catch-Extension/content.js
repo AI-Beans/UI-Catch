@@ -567,7 +567,7 @@ if (!window.__UI_CATCH_ACTIVE) {
 
     const componentInfo = getComponentInfo(container);
 
-    let prompt = `我在调整前端 UI 布局。请帮我重构下面这个【区块/容器】及它的内部结构：\n\n【容器特征指纹】\n${fp}\n\n【定位${selectorLabel}】\n${bestSelector}\n\n【包含子元素】${childCount} 个`;
+    let prompt = `我在调整前端 UI。请帮我处理下面这个【区块/容器】：\n\n【容器特征指纹】\n${fp}\n\n【定位${selectorLabel}】\n${bestSelector}\n\n【包含子元素】${childCount} 个`;
     if (componentInfo.framework && componentInfo.componentName) {
       prompt += `\n\n【组件】\n<${componentInfo.componentName}> (${componentInfo.framework})`;
     }
