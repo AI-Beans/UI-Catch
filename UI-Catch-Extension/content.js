@@ -78,7 +78,7 @@ if (!window.__UI_CATCH_ACTIVE) {
       
       const textarea = document.createElement('textarea');
       textarea.value = data.prompt;
-      textarea.style.cssText = 'width:100%;min-height:140px;max-height:300px;resize:vertical;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 16px;font-family:"SF Mono",Monaco,Inconsolata,"Fira Code","Cascadia Code",monospace;font-size:12px;color:#e8e8e8;line-height:1.6;outline:none;box-sizing:border-box;';
+      textarea.style.cssText = 'width:100%;min-height:200px;max-height:400px;resize:vertical;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 16px;font-family:"SF Mono",Monaco,Inconsolata,"Fira Code","Cascadia Code",monospace;font-size:12px;color:#e8e8e8;line-height:1.6;outline:none;box-sizing:border-box;';
       textarea.onfocus = () => { textarea.style.borderColor = 'rgba(222,255,154,0.5)'; };
       textarea.onblur = () => { textarea.style.borderColor = 'rgba(255,255,255,0.1)'; };
       body.appendChild(textarea);
@@ -156,6 +156,149 @@ if (!window.__UI_CATCH_ACTIVE) {
   };
   // --- /自定义通知系统 ---
 
+  // --- 元素分析工具集 ---
+
+  // 唯一 CSS Selector 生成 (finder 风格: ID → data-testid → class → nth-of-type)
+  const getUniqueSelector = (el) => {
+    if (el.id && /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(el.id)) {
+      return '#' + CSS.escape(el.id);
+    }
+
+    const testId = el.getAttribute('data-testid');
+    if (testId) return `[data-testid="${CSS.escape(testId)}"]`;
+
+    const tag = el.tagName.toLowerCase();
+    const cls = (el.getAttribute('class') || '').replace('ui-catch-hover', '').trim();
+    const classTokens = cls.split(/\s+/).filter(c => c && /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(c));
+
+    if (classTokens.length > 0) {
+      const selector = tag + '.' + classTokens.map(c => CSS.escape(c)).join('.');
+      if (document.querySelectorAll(selector).length === 1) return selector;
+
+      for (let comboLen = classTokens.length; comboLen >= 1; comboLen--) {
+        for (let start = 0; start <= classTokens.length - comboLen; start++) {
+          const combo = classTokens.slice(start, start + comboLen);
+          const s = tag + '.' + combo.map(c => CSS.escape(c)).join('.');
+          if (document.querySelectorAll(s).length === 1) return s;
+        }
+      }
+    }
+
+    const parent = el.parentElement;
+    if (parent) {
+      const siblings = Array.from(parent.children).filter(c => c.tagName === el.tagName);
+      if (siblings.length === 1) return tag;
+      const idx = siblings.indexOf(el) + 1;
+      return tag + ':nth-of-type(' + idx + ')';
+    }
+    return tag;
+  };
+
+  // 完整 CSS Path 生成 (DevTools DOMPath 风格)
+  const getCSSPath = (el) => {
+    const steps = [];
+    let node = el;
+    while (node && node !== document.documentElement) {
+      let step = node.tagName.toLowerCase();
+      if (node.id && /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(node.id)) {
+        steps.push(step + '#' + CSS.escape(node.id));
+        break;
+      }
+      const cls = (node.getAttribute('class') || '').replace('ui-catch-hover', '').trim();
+      const tokens = cls.split(/\s+/).filter(c => c && /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(c));
+      if (tokens.length > 0) {
+        step += '.' + tokens.map(c => CSS.escape(c)).join('.');
+      }
+      const parent = node.parentElement;
+      if (parent) {
+        const siblings = Array.from(parent.children).filter(c => c.tagName === node.tagName);
+        if (siblings.length > 1) {
+          step += ':nth-of-type(' + (siblings.indexOf(node) + 1) + ')';
+        }
+      }
+      steps.push(step);
+      node = node.parentElement;
+    }
+    if (node === document.documentElement) steps.push('html');
+    return steps.reverse().join(' > ');
+  };
+
+  // XPath 生成
+  const getXPath = (el) => {
+    if (el.id && /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(el.id)) {
+      return '//*[@id="' + el.id + '"]';
+    }
+    const parts = [];
+    let node = el;
+    while (node && node.nodeType === 1) {
+      let idx = 1;
+      let sib = node.previousSibling;
+      while (sib) {
+        if (sib.nodeType === 1 && sib.tagName === node.tagName) idx++;
+        sib = sib.previousSibling;
+      }
+      const tag = node.tagName.toLowerCase();
+      parts.push(tag + '[' + idx + ']');
+      node = node.parentElement;
+    }
+    return '/' + parts.reverse().join('/');
+  };
+
+  // 框架感知: React Fiber / Vue 实例 → 组件名
+  const getComponentInfo = (el) => {
+    const result = { framework: null, componentName: null, props: null };
+
+    // React Fiber (支持 React 16+ 的内部属性名)
+    const fiberKey = Object.keys(el).find(k =>
+      k.startsWith('__reactFiber$') || k.startsWith('__reactInternalInstance$')
+    );
+    if (fiberKey) {
+      let fiber = el[fiberKey];
+      result.framework = 'react';
+      // 向上遍历 Fiber 树找有 name 的组件
+      let depth = 0;
+      while (fiber && depth < 15) {
+        if (fiber.type && typeof fiber.type === 'function' && fiber.type.name) {
+          result.componentName = fiber.type.name;
+          if (fiber.pendingProps) {
+            const safeProps = {};
+            for (const [k, v] of Object.entries(fiber.pendingProps)) {
+              if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') {
+                safeProps[k] = v;
+              }
+            }
+            if (Object.keys(safeProps).length > 0) result.props = safeProps;
+          }
+          break;
+        }
+        if (fiber.type && typeof fiber.type === 'object' && fiber.type.name) {
+          result.componentName = fiber.type.name;
+          break;
+        }
+        fiber = fiber.return;
+        depth++;
+      }
+      return result;
+    }
+
+    // Vue 2/3 实例
+    const vueKey = Object.keys(el).find(k => k.startsWith('__vue__') || k.startsWith('__vue_app__'));
+    if (vueKey) {
+      result.framework = 'vue';
+      const instance = el[vueKey];
+      if (instance.$options && instance.$options.name) {
+        result.componentName = instance.$options.name;
+      } else if (instance._ && instance._.type && instance._.type.name) {
+        result.componentName = instance._.type.name;
+      }
+      return result;
+    }
+
+    return result;
+  };
+
+  // --- /元素分析工具集 ---
+
   // 3. 通用清理函数 (恢复页面原状)
   const cleanup = () => {
     document.removeEventListener('mouseover', over, true);
@@ -184,41 +327,52 @@ if (!window.__UI_CATCH_ACTIVE) {
     e.stopPropagation();
     
     const el = e.target;
-    // 提前去除 hover 效果，防止脏数据
     el.classList.remove('ui-catch-hover');
     
     console.log("🎯 UI-Catch 捕获到原始 DOM 节点:", el);
-    
-    // ⚠️ 修复核心 Bug：使用 getAttribute 获取安全字符串，防止 SVG 元素导致崩溃
+
     const cls = (el.getAttribute('class') || '').replace('ui-catch-hover', '').trim();
     const tag = el.tagName.toLowerCase();
     const id = el.id ? ` id="${el.id}"` : '';
     const cStr = cls ? ` class="${cls}"` : '';
-    
-    // 提取文本（去除多余换行，增加 textContent 兼容一些没有 innerText 的特殊标签）
     let txt = (el.innerText || el.textContent || '').replace(/\n/g, ' ').trim();
     if (txt.length > 40) txt = txt.substring(0, 40) + '...';
-    
     const fp = `<${tag}${id}${cStr}>${txt}</${tag}>`;
-    
-    // 提取最近的带有 ID 的父节点作为上下文
-    let pCtx = 'body';
-    let curr = el.parentElement;
-    for(let i=0; i<3 && curr; i++) {
-      if(curr.id) { 
-        pCtx = `<${curr.tagName.toLowerCase()} id="${curr.id}">`; 
-        break; 
+
+    // 优先级定位：ID → data-testid → 唯一 selector → CSS Path → XPath
+    let bestSelector = '';
+    let selectorLabel = '';
+    if (el.id && /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(el.id)) {
+      bestSelector = '#' + CSS.escape(el.id);
+      selectorLabel = 'ID';
+    } else if (el.getAttribute('data-testid')) {
+      bestSelector = `[data-testid="${CSS.escape(el.getAttribute('data-testid'))}"]`;
+      selectorLabel = 'data-testid';
+    } else {
+      const unique = getUniqueSelector(el);
+      if (unique !== tag || document.querySelectorAll(tag).length === 1) {
+        bestSelector = unique;
+        selectorLabel = 'Selector';
+      } else {
+        bestSelector = getCSSPath(el);
+        selectorLabel = 'Path';
       }
-      curr = curr.parentElement;
     }
-    
-    const prompt = `我在调整前端 UI。请帮我修改下面这个特定元素：\n\n【特征指纹】\n${fp}\n\n【上下文位置】\n在 ${pCtx} 内部\n\n【我的需求】\n1. `;
+
+    const componentInfo = getComponentInfo(el);
+
+    // 组装 Prompt — 只展示最短唯一标识
+    let prompt = `我在调整前端 UI。请帮我修改下面这个特定元素：\n\n【特征指纹】\n${fp}\n\n【定位${selectorLabel}】\n${bestSelector}`;
+
+    if (componentInfo.framework && componentInfo.componentName) {
+      prompt += `\n\n【组件】\n<${componentInfo.componentName}> (${componentInfo.framework})`;
+    }
+
+    prompt += `\n\n【我的需求】\n1. `;
+
     console.log("📝 准备复制的 Prompt:\n", prompt);
     
-    // 直接弹出可编辑模态框，用户自行修改后点击复制
-    showModal('success', { title: 'UI-Catch 捕捉成功！', prompt: prompt });
-    
-    // 任务完成，清理所有监听和样式
+    showModal('success', { title: 'UI-Catch 捕捉成功！', prompt: prompt, autoDismiss: false });
     cleanup();
   };
   
