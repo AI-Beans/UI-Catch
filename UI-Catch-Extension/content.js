@@ -83,14 +83,6 @@ if (!window.__UI_CATCH_ACTIVE) {
     const body = document.createElement('div');
     body.style.cssText = 'color:rgba(255,255,255,0.85);font-size:14px;line-height:1.6;';
 
-    if (data.summary) {
-      // 元素摘要行
-      const summaryRow = document.createElement('div');
-      summaryRow.style.cssText = 'padding:10px 14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:8px;margin-bottom:16px;font-size:13px;color:rgba(255,255,255,0.7);font-family:"SF Mono",Monaco,monospace;word-break:break-all;';
-      summaryRow.textContent = data.summary;
-      body.appendChild(summaryRow);
-    }
-
     // 系统提示预设
     const sysLabel = document.createElement('div');
     sysLabel.style.cssText = 'font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;';
@@ -98,25 +90,11 @@ if (!window.__UI_CATCH_ACTIVE) {
     body.appendChild(sysLabel);
 
     const sysTextarea = document.createElement('textarea');
-    sysTextarea.value = data.systemPreset || localStorage.getItem('ui-catch-system') || '我在调整前端 UI。请帮我处理下面这个元素：';
-    sysTextarea.style.cssText = 'width:100%;min-height:56px;resize:vertical;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13px;color:#e8e8e8;line-height:1.5;outline:none;box-sizing:border-box;margin-bottom:14px;';
+    sysTextarea.value = data.systemPreset || localStorage.getItem('ui-catch-system') || '你是一位资深全栈开发专家，精通 React、Vue、Tailwind CSS 和现代前端设计系统。我在调整前端 UI，请帮我处理下面这个元素：';
+    sysTextarea.style.cssText = 'width:100%;min-height:72px;resize:vertical;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13px;color:#e8e8e8;line-height:1.5;outline:none;box-sizing:border-box;margin-bottom:14px;';
     sysTextarea.onfocus = () => { sysTextarea.style.borderColor = 'rgba(222,255,154,0.4)'; };
     sysTextarea.onblur = () => { sysTextarea.style.borderColor = 'rgba(255,255,255,0.08)'; };
     body.appendChild(sysTextarea);
-
-    // 我的需求
-    const demandLabel = document.createElement('div');
-    demandLabel.style.cssText = 'font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;';
-    demandLabel.textContent = '我的需求';
-    body.appendChild(demandLabel);
-
-    const demandTextarea = document.createElement('textarea');
-    demandTextarea.value = localStorage.getItem('ui-catch-demand') || '';
-    demandTextarea.placeholder = '例如：改成圆角按钮，颜色换成蓝色...';
-    demandTextarea.style.cssText = 'width:100%;min-height:80px;resize:vertical;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13px;color:#e8e8e8;line-height:1.5;outline:none;box-sizing:border-box;margin-bottom:14px;';
-    demandTextarea.onfocus = () => { demandTextarea.style.borderColor = 'rgba(222,255,154,0.4)'; };
-    demandTextarea.onblur = () => { demandTextarea.style.borderColor = 'rgba(255,255,255,0.08)'; };
-    body.appendChild(demandTextarea);
 
     // 元素详情（可折叠）
     if (data.details) {
@@ -138,6 +116,20 @@ if (!window.__UI_CATCH_ACTIVE) {
       body.appendChild(detailsToggle);
       body.appendChild(detailsPanel);
     }
+
+    // 我的需求
+    const demandLabel = document.createElement('div');
+    demandLabel.style.cssText = 'font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;';
+    demandLabel.textContent = '我的需求';
+    body.appendChild(demandLabel);
+
+    const demandTextarea = document.createElement('textarea');
+    demandTextarea.value = localStorage.getItem('ui-catch-demand') || '';
+    demandTextarea.placeholder = '例如：改成圆角按钮，颜色换成蓝色...';
+    demandTextarea.style.cssText = 'width:100%;min-height:80px;resize:vertical;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13px;color:#e8e8e8;line-height:1.5;outline:none;box-sizing:border-box;margin-bottom:14px;';
+    demandTextarea.onfocus = () => { demandTextarea.style.borderColor = 'rgba(222,255,154,0.4)'; };
+    demandTextarea.onblur = () => { demandTextarea.style.borderColor = 'rgba(255,255,255,0.08)'; };
+    body.appendChild(demandTextarea);
 
     // 底部操作栏
     const bottomRow = document.createElement('div');
@@ -572,7 +564,6 @@ if (!window.__UI_CATCH_ACTIVE) {
     }
 
     const componentInfo = getComponentInfo(el);
-    const summary = `<${tag}> · ${bestSelector}`;
     let details = `【特征指纹】\n${fp}\n\n【定位${selectorLabel}】\n${bestSelector}`;
     if (componentInfo.framework && componentInfo.componentName) {
       details += `\n\n【组件】\n<${componentInfo.componentName}> (${componentInfo.framework})`;
@@ -580,7 +571,6 @@ if (!window.__UI_CATCH_ACTIVE) {
 
     showModal('success', {
       title: 'UI-Catch 捕捉成功！',
-      summary: summary,
       details: details
     });
     cleanup();
@@ -606,7 +596,6 @@ if (!window.__UI_CATCH_ACTIVE) {
     }
 
     const componentInfo = getComponentInfo(container);
-    const summary = `<${tag}> · ${bestSelector} · ${childCount}个子元素`;
     let details = `【容器特征指纹】\n${fp}\n\n【定位${selectorLabel}】\n${bestSelector}\n\n【包含子元素】${childCount} 个`;
     if (componentInfo.framework && componentInfo.componentName) {
       details += `\n\n【组件】\n<${componentInfo.componentName}> (${componentInfo.framework})`;
@@ -614,7 +603,6 @@ if (!window.__UI_CATCH_ACTIVE) {
 
     showModal('success', {
       title: 'UI-Catch 区域捕捉成功！',
-      summary: summary,
       details: details
     });
     cleanup();
