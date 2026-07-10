@@ -14,7 +14,7 @@ if (!window.__UI_CATCH_ACTIVE) {
   if (!document.getElementById(styleId)) {
     const style = document.createElement('style');
     style.id = styleId;
-    style.textContent = '.ui-catch-hover { outline: 3px solid #facc15 !important; outline-offset: -3px !important; background-color: rgba(250, 204, 21, 0.2) !important; cursor: crosshair !important; transition: all 0.1s; }';
+    style.textContent = '.ui-catch-hover { outline: 3px solid #facc15 !important; outline-offset: -3px !important; background-color: rgba(250, 204, 21, 0.2) !important; cursor: crosshair !important; transition: all 0.1s; } .ui-catch-selected { outline: 3px solid #facc15 !important; outline-offset: -3px !important; background-color: rgba(250, 204, 21, 0.45) !important; }';
     document.head.appendChild(style);
   }
 
@@ -91,7 +91,7 @@ if (!window.__UI_CATCH_ACTIVE) {
   const updateCursorStyle = () => {
     const styleEl = document.getElementById(styleId);
     if (!styleEl) return;
-    styleEl.textContent = '.ui-catch-hover { outline: 3px solid #facc15 !important; outline-offset: -3px !important; background-color: rgba(250, 204, 21, 0.2) !important; cursor: crosshair !important; transition: all 0.1s; }';
+    styleEl.textContent = '.ui-catch-hover { outline: 3px solid #facc15 !important; outline-offset: -3px !important; background-color: rgba(250, 204, 21, 0.2) !important; cursor: crosshair !important; transition: all 0.1s; } .ui-catch-selected { outline: 3px solid #facc15 !important; outline-offset: -3px !important; background-color: rgba(250, 204, 21, 0.45) !important; }';
   };
 
   const updateSpriteFrame = () => {
@@ -172,13 +172,19 @@ if (!window.__UI_CATCH_ACTIVE) {
 
   // 2. 模式切换工具栏 (Shadow DOM)
   let currentMode = 'pick';
+  let uiFontScale = parseFloat(localStorage.getItem('ui-catch-font-scale')) || 1;
   const toolbarHost = document.createElement('div');
   toolbarHost.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:2147483647;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;';
   const toolbarShadow = toolbarHost.attachShadow({ mode: 'open' });
   const toolbarStyle = document.createElement('style');
-  toolbarStyle.textContent = '.tb{display:flex;align-items:center;gap:2px;background:rgba(15,15,15,0.92);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:4px;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.3);} .mb{padding:8px 16px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.5);background:transparent;font-family:inherit;} .mb:hover{color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.08);} .mb.on{color:#000;background:#facc15;border:2px solid #000;border-bottom:3px solid #000;box-shadow:2px 2px 0px 0px rgba(0,0,0,0.3);} .mb.on:hover{box-shadow:1px 1px 0px 0px rgba(0,0,0,0.3);transform:translate(1px,1px);} .cb{padding:8px 10px;border:none;border-radius:8px;cursor:pointer;color:#fff;background:transparent;transition:all 0.2s;display:flex;align-items:center;justify-content:center;} .cb:hover{color:#fff;background:rgba(255,255,255,0.1);}';
+  toolbarStyle.textContent = '.tb{display:flex;align-items:center;gap:2px;background:rgba(15,15,15,0.92);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:4px;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.3);} .mb{padding:8px 16px;border:none;border-radius:8px;font-size:calc(14px * var(--ui-scale, 1));font-weight:600;cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.5);background:transparent;font-family:inherit;} .mb:hover{color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.08);} .mb.on{color:#000;background:#facc15;border:2px solid #000;border-bottom:3px solid #000;box-shadow:2px 2px 0px 0px rgba(0,0,0,0.3);} .mb.on:hover{box-shadow:1px 1px 0px 0px rgba(0,0,0,0.3);transform:translate(1px,1px);} .cb{padding:8px 10px;border:none;border-radius:8px;cursor:pointer;color:#fff;background:transparent;transition:all 0.2s;display:flex;align-items:center;justify-content:center;} .cb:hover{color:#fff;background:rgba(255,255,255,0.1);} .grip{padding:8px 6px;cursor:grab;color:rgba(255,255,255,0.3);display:flex;align-items:center;user-select:none;font-size:calc(16px * var(--ui-scale, 1));line-height:1;} .grip:active{cursor:grabbing;} .grip:hover{color:rgba(255,255,255,0.6);}';
   const toolbar = document.createElement('div');
   toolbar.setAttribute('class', 'tb');
+
+  const gripBtn = document.createElement('div');
+  gripBtn.setAttribute('class', 'grip');
+  gripBtn.textContent = '⠿';
+  gripBtn.title = '拖动移动工具栏';
 
   const pickBtn = document.createElement('button');
   pickBtn.setAttribute('class', 'mb on');
@@ -187,6 +193,10 @@ if (!window.__UI_CATCH_ACTIVE) {
   const marqueeBtn = document.createElement('button');
   marqueeBtn.setAttribute('class', 'mb');
   marqueeBtn.textContent = '区域框选';
+
+  const multiBtn = document.createElement('button');
+  multiBtn.setAttribute('class', 'mb');
+  multiBtn.textContent = '多选选取';
 
   const closeBtn = document.createElement('button');
   closeBtn.setAttribute('class', 'cb');
@@ -207,6 +217,7 @@ if (!window.__UI_CATCH_ACTIVE) {
     const host = document.createElement('div');
     host.setAttribute('data-ui-catch-modal', '');
     host.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2147483647;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;';
+    host.style.setProperty('--ui-scale', String(uiFontScale));
 
     const shadow = host.attachShadow({ mode: 'open' });
 
@@ -219,7 +230,7 @@ if (!window.__UI_CATCH_ACTIVE) {
     // 关闭按钮
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '\u00D7';
-    closeBtn.style.cssText = 'position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.08);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:300;line-height:1;padding:0;transition:all 0.2s;';
+    closeBtn.style.cssText = 'position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.08);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:calc(18px * var(--ui-scale, 1));font-weight:300;line-height:1;padding:0;transition:all 0.2s;';
     closeBtn.onmouseenter = () => { closeBtn.style.background='rgba(255,255,255,0.15)'; };
     closeBtn.onmouseleave = () => { closeBtn.style.background='rgba(255,255,255,0.08)'; };
 
@@ -231,42 +242,54 @@ if (!window.__UI_CATCH_ACTIVE) {
       : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff9a9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
     header.appendChild(createSVG(iconSvg));
     const titleSpan = document.createElement('span');
-    titleSpan.style.cssText = `font-size:16px;font-weight:700;color:${accentColor};`;
+    titleSpan.style.cssText = `font-size:calc(17px * var(--ui-scale, 1));font-weight:700;color:${accentColor};`;
     titleSpan.textContent = data.title || '';
     header.appendChild(titleSpan);
 
     // 内容区
     const body = document.createElement('div');
-    body.style.cssText = 'color:rgba(255,255,255,0.85);font-size:14px;line-height:1.6;';
+    body.style.cssText = 'color:rgba(255,255,255,0.85);font-size:calc(15px * var(--ui-scale, 1));line-height:1.6;';
 
-    // 系统提示预设
-    const sysLabel = document.createElement('div');
-    sysLabel.style.cssText = 'font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;';
-    sysLabel.textContent = '系统提示预设';
-    body.appendChild(sysLabel);
+    // 系统提示预设（可折叠，默认收起）
+    const sysToggle = document.createElement('button');
+    sysToggle.style.cssText = 'width:100%;text-align:left;padding:8px 0;background:none;border:none;color:rgba(255,255,255,0.4);font-size:calc(13px * var(--ui-scale, 1));cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:8px;font-family:inherit;';
+    sysToggle.innerHTML = '<span style="font-size:calc(11px * var(--ui-scale, 1));">▶</span> 系统提示预设';
+
+    const sysPanel = document.createElement('div');
+    sysPanel.style.cssText = 'display:none;padding:12px 14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:8px;margin-bottom:16px;';
 
     const sysTextarea = document.createElement('textarea');
     sysTextarea.value = data.systemPreset || localStorage.getItem('ui-catch-system') || '你是一位资深全栈开发专家，精通 React、Vue、Tailwind CSS 和现代前端设计系统。我在调整前端 UI，请帮我处理下面这个元素：';
-    sysTextarea.style.cssText = 'width:100%;min-height:72px;resize:vertical;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13px;color:#e8e8e8;line-height:1.5;outline:none;box-sizing:border-box;margin-bottom:14px;';
+    sysTextarea.style.cssText = 'width:100%;min-height:72px;resize:vertical;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:calc(15px * var(--ui-scale, 1));color:#e8e8e8;line-height:1.5;outline:none;box-sizing:border-box;';
     sysTextarea.onfocus = () => { sysTextarea.style.borderColor = 'rgba(250,204,21,0.4)'; };
     sysTextarea.onblur = () => { sysTextarea.style.borderColor = 'rgba(255,255,255,0.08)'; };
-    body.appendChild(sysTextarea);
+    sysPanel.appendChild(sysTextarea);
+
+    let sysExpanded = false;
+    sysToggle.addEventListener('click', () => {
+      sysExpanded = !sysExpanded;
+      sysPanel.style.display = sysExpanded ? 'block' : 'none';
+      sysToggle.innerHTML = `<span style="font-size:calc(11px * var(--ui-scale, 1));">${sysExpanded ? '▼' : '▶'}</span> 系统提示预设`;
+    });
+
+    body.appendChild(sysToggle);
+    body.appendChild(sysPanel);
 
     // 元素详情（可折叠）
     if (data.details) {
       const detailsToggle = document.createElement('button');
-      detailsToggle.style.cssText = 'width:100%;text-align:left;padding:8px 0;background:none;border:none;color:rgba(255,255,255,0.4);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:8px;font-family:inherit;';
-      detailsToggle.innerHTML = '<span style="font-size:10px;">▶</span> 元素详情';
+      detailsToggle.style.cssText = 'width:100%;text-align:left;padding:8px 0;background:none;border:none;color:rgba(255,255,255,0.4);font-size:calc(13px * var(--ui-scale, 1));cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:8px;font-family:inherit;';
+      detailsToggle.innerHTML = '<span style="font-size:calc(11px * var(--ui-scale, 1));">▶</span> 元素详情';
 
       const detailsPanel = document.createElement('div');
-      detailsPanel.style.cssText = 'display:none;padding:12px 14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:8px;margin-bottom:16px;font-family:"SF Mono",Monaco,monospace;font-size:12px;color:rgba(255,255,255,0.65);line-height:1.7;white-space:pre-wrap;word-break:break-all;';
+      detailsPanel.style.cssText = 'display:none;padding:12px 14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:8px;margin-bottom:16px;font-family:"SF Mono",Monaco,monospace;font-size:calc(13px * var(--ui-scale, 1));color:rgba(255,255,255,0.65);line-height:1.7;white-space:pre-wrap;word-break:break-all;';
       detailsPanel.textContent = data.details;
 
       let expanded = false;
       detailsToggle.addEventListener('click', () => {
         expanded = !expanded;
         detailsPanel.style.display = expanded ? 'block' : 'none';
-        detailsToggle.innerHTML = `<span style="font-size:10px;">${expanded ? '▼' : '▶'}</span> 元素详情`;
+        detailsToggle.innerHTML = `<span style="font-size:calc(11px * var(--ui-scale, 1));">${expanded ? '▼' : '▶'}</span> 元素详情`;
       });
 
       body.appendChild(detailsToggle);
@@ -275,14 +298,14 @@ if (!window.__UI_CATCH_ACTIVE) {
 
     // 我的需求
     const demandLabel = document.createElement('div');
-    demandLabel.style.cssText = 'font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;';
+    demandLabel.style.cssText = 'font-size:calc(12px * var(--ui-scale, 1));font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:0.5px;text-transform:uppercase;';
     demandLabel.textContent = '我的需求';
     body.appendChild(demandLabel);
 
     const demandTextarea = document.createElement('textarea');
     demandTextarea.value = localStorage.getItem('ui-catch-demand') || '';
     demandTextarea.placeholder = '例如：改成圆角按钮，颜色换成蓝色...';
-    demandTextarea.style.cssText = 'width:100%;min-height:80px;resize:vertical;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13px;color:#e8e8e8;line-height:1.5;outline:none;box-sizing:border-box;margin-bottom:14px;';
+    demandTextarea.style.cssText = 'width:100%;min-height:220px;resize:vertical;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:calc(15px * var(--ui-scale, 1));color:#e8e8e8;line-height:1.5;outline:none;box-sizing:border-box;margin-bottom:14px;';
     demandTextarea.onfocus = () => { demandTextarea.style.borderColor = 'rgba(250,204,21,0.4)'; };
     demandTextarea.onblur = () => { demandTextarea.style.borderColor = 'rgba(255,255,255,0.08)'; };
     body.appendChild(demandTextarea);
@@ -292,11 +315,11 @@ if (!window.__UI_CATCH_ACTIVE) {
     bottomRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-top:8px;';
 
     const badge = document.createElement('div');
-    badge.style.cssText = 'display:none;padding:4px 10px;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.25);border-radius:20px;font-size:11px;font-weight:600;color:#facc15;letter-spacing:0.5px;';
+    badge.style.cssText = 'display:none;padding:4px 10px;background:rgba(250,204,21,0.12);border:1px solid rgba(250,204,21,0.25);border-radius:20px;font-size:calc(12px * var(--ui-scale, 1));font-weight:600;color:#facc15;letter-spacing:0.5px;';
     badge.textContent = '已复制到剪贴板';
 
     const copyBtn = document.createElement('button');
-    copyBtn.style.cssText = 'padding:8px 20px;background:#facc15;color:#000;border:2px solid #000;border-bottom:3px solid #000;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;box-shadow:2px 2px 0px 0px rgba(0,0,0,0.3);';
+    copyBtn.style.cssText = 'padding:8px 20px;background:#facc15;color:#000;border:2px solid #000;border-bottom:3px solid #000;border-radius:8px;font-size:calc(15px * var(--ui-scale, 1));font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;box-shadow:2px 2px 0px 0px rgba(0,0,0,0.3);';
     copyBtn.textContent = '复制到剪贴板';
     copyBtn.onmouseenter = () => { copyBtn.style.background = '#fde047'; copyBtn.style.boxShadow = '1px 1px 0px 0px rgba(0,0,0,0.3)'; copyBtn.style.transform = 'translate(1px,1px)'; };
     copyBtn.onmouseleave = () => { copyBtn.style.background = '#facc15'; copyBtn.style.boxShadow = '2px 2px 0px 0px rgba(0,0,0,0.3)'; copyBtn.style.transform = 'translate(0,0)'; };
@@ -318,14 +341,14 @@ if (!window.__UI_CATCH_ACTIVE) {
           ta.value = text; document.body.appendChild(ta); ta.select();
           document.execCommand('copy'); ta.remove();
         }
-        copyBtn.textContent = '已复制';
-        copyBtn.style.background = 'rgba(250,204,21,0.2)';
-        copyBtn.style.color = '#facc15';
+        copyBtn.textContent = '已复制 ✓';
+        copyBtn.style.background = '#facc15';
+        copyBtn.style.color = '#000';
         badge.style.display = 'inline-block';
       } catch(e) {
         copyBtn.textContent = '复制失败';
-        copyBtn.style.background = 'rgba(255,154,154,0.2)';
-        copyBtn.style.color = '#ff9a9a';
+        copyBtn.style.background = '#ff9a9a';
+        copyBtn.style.color = '#000';
       }
     });
 
@@ -360,6 +383,18 @@ if (!window.__UI_CATCH_ACTIVE) {
 
   // --- 元素分析工具集 ---
 
+  // 过滤 CSS-in-JS 生成的无意义哈希类名（styled-components/emotion/CSS Modules）
+  const isGeneratedClass = (token) => {
+    const m = token.match(/^(css|sc|jss|emotion)-([a-zA-Z0-9]+)$/);
+    if (m) {
+      const hash = m[2];
+      if (hash.length >= 5 && (/\d/.test(hash) || /[A-Z]/.test(hash))) return true;
+    }
+    return /__[a-z0-9]*[A-Z0-9][a-zA-Z0-9]*$/.test(token);
+  };
+
+  const cleanClassStr = (raw) => raw.replace('ui-catch-hover', '').replace('ui-catch-selected', '').split(/\s+/).filter(c => c && !isGeneratedClass(c)).join(' ').trim();
+
   // 唯一 CSS Selector 生成 (finder 风格: ID → data-testid → class → nth-of-type)
   const getUniqueSelector = (el) => {
     if (el.id && /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(el.id)) {
@@ -371,7 +406,7 @@ if (!window.__UI_CATCH_ACTIVE) {
 
     const tag = el.tagName.toLowerCase();
     const cls = (el.getAttribute('class') || '').replace('ui-catch-hover', '').trim();
-    const classTokens = cls.split(/\s+/).filter(c => c && /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(c));
+    const classTokens = cls.split(/\s+/).filter(c => c && /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(c) && !isGeneratedClass(c));
 
     if (classTokens.length > 0) {
       const selector = tag + '.' + classTokens.map(c => CSS.escape(c)).join('.');
@@ -407,7 +442,7 @@ if (!window.__UI_CATCH_ACTIVE) {
         break;
       }
       const cls = (node.getAttribute('class') || '').replace('ui-catch-hover', '').trim();
-      const tokens = cls.split(/\s+/).filter(c => c && /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(c));
+      const tokens = cls.split(/\s+/).filter(c => c && /^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(c) && !isGeneratedClass(c));
       if (tokens.length > 0) {
         step += '.' + tokens.map(c => CSS.escape(c)).join('.');
       }
@@ -567,36 +602,116 @@ if (!window.__UI_CATCH_ACTIVE) {
   marquee.style.cssText = 'position:fixed;border:2px dashed #facc15;background:rgba(250,204,21,0.08);z-index:2147483646;pointer-events:none;display:none;border-radius:4px;';
   document.body.appendChild(marquee);
 
+  // 3.5 多选确认按钮 (Shadow DOM 封装，浮动在底部中央)
+  let multiSelected = new Set();
+  const multiConfirmHost = document.createElement('div');
+  multiConfirmHost.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:2147483647;display:none;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;';
+  const multiConfirmShadow = multiConfirmHost.attachShadow({ mode: 'open' });
+  const multiConfirmStyle = document.createElement('style');
+  multiConfirmStyle.textContent = '.cf{padding:12px 24px;background:#facc15;color:#000;border:2px solid #000;border-bottom:3px solid #000;border-radius:10px;font-size:calc(15px * var(--ui-scale, 1));font-weight:700;cursor:pointer;box-shadow:2px 2px 0px 0px rgba(0,0,0,0.3);transition:all 0.2s;font-family:inherit;} .cf:hover{box-shadow:1px 1px 0px 0px rgba(0,0,0,0.3);transform:translate(1px,1px);}';
+  const multiConfirmBtn = document.createElement('button');
+  multiConfirmBtn.setAttribute('class', 'cf');
+  multiConfirmBtn.textContent = '✓ 完成 (0)';
+  multiConfirmShadow.appendChild(multiConfirmStyle);
+  multiConfirmShadow.appendChild(multiConfirmBtn);
+  document.body.appendChild(multiConfirmHost);
+
   let dragState = 'idle';
   let startX = 0, startY = 0;
   const DRAG_THRESHOLD = 5;
 
   // 工具栏组装 (依赖 createSVG 和 marquee 已就绪)
+  const clearMultiSelection = () => {
+    multiSelected.forEach(el => el.classList.remove('ui-catch-selected'));
+    multiSelected.clear();
+    updateMultiConfirm();
+  };
   pickBtn.addEventListener('click', () => {
     currentMode = 'pick';
     pickBtn.setAttribute('class', 'mb on');
     marqueeBtn.setAttribute('class', 'mb');
+    multiBtn.setAttribute('class', 'mb');
+    clearMultiSelection();
   });
   marqueeBtn.addEventListener('click', () => {
     currentMode = 'marquee';
     marqueeBtn.setAttribute('class', 'mb on');
     pickBtn.setAttribute('class', 'mb');
+    multiBtn.setAttribute('class', 'mb');
+    document.querySelectorAll('.ui-catch-hover').forEach(el => el.classList.remove('ui-catch-hover'));
+    clearMultiSelection();
+    marquee.style.display = 'none';
+    dragState = 'idle';
+  });
+  multiBtn.addEventListener('click', () => {
+    currentMode = 'multi';
+    multiBtn.setAttribute('class', 'mb on');
+    pickBtn.setAttribute('class', 'mb');
+    marqueeBtn.setAttribute('class', 'mb');
     document.querySelectorAll('.ui-catch-hover').forEach(el => el.classList.remove('ui-catch-hover'));
     marquee.style.display = 'none';
     dragState = 'idle';
+    updateMultiConfirm();
   });
   closeBtn.addEventListener('click', () => cleanup());
 
   const toolbarSpacer = document.createElement('div');
   toolbarSpacer.style.cssText = 'width:1px;height:20px;background:rgba(255,255,255,0.15);margin:0 4px;';
 
+  toolbar.appendChild(gripBtn);
   toolbar.appendChild(pickBtn);
   toolbar.appendChild(marqueeBtn);
+  toolbar.appendChild(multiBtn);
   toolbar.appendChild(toolbarSpacer);
   toolbar.appendChild(settingsBtn);
   toolbar.appendChild(closeBtn);
   toolbarShadow.appendChild(toolbarStyle);
   toolbarShadow.appendChild(toolbar);
+
+  // 工具栏拖动（grip 手柄），位置持久化到 localStorage
+  let isDraggingToolbar = false;
+  const savedPos = localStorage.getItem('ui-catch-toolbar-pos');
+  if (savedPos) {
+    try {
+      const { left, top } = JSON.parse(savedPos);
+      const r0 = toolbarHost.getBoundingClientRect();
+      toolbarHost.style.left = Math.max(0, Math.min(window.innerWidth - r0.width, left)) + 'px';
+      toolbarHost.style.top = Math.max(0, Math.min(window.innerHeight - r0.height, top)) + 'px';
+      toolbarHost.style.transform = 'none';
+    } catch(e) {}
+  }
+  gripBtn.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    isDraggingToolbar = true;
+    const rect = toolbarHost.getBoundingClientRect();
+    const startX = e.clientX, startY = e.clientY;
+    const startLeft = rect.left, startTop = rect.top;
+    toolbarHost.style.transform = 'none';
+    const onMove = (ev) => {
+      const nl = Math.max(0, Math.min(window.innerWidth - rect.width, startLeft + ev.clientX - startX));
+      const nt = Math.max(0, Math.min(window.innerHeight - rect.height, startTop + ev.clientY - startY));
+      toolbarHost.style.left = nl + 'px';
+      toolbarHost.style.top = nt + 'px';
+    };
+    const onUp = () => {
+      isDraggingToolbar = false;
+      document.removeEventListener('mousemove', onMove, true);
+      document.removeEventListener('mouseup', onUp, true);
+      const r = toolbarHost.getBoundingClientRect();
+      localStorage.setItem('ui-catch-toolbar-pos', JSON.stringify({ left: r.left, top: r.top }));
+    };
+    document.addEventListener('mousemove', onMove, true);
+    document.addEventListener('mouseup', onUp, true);
+  });
+
+  // 全局字体缩放：--ui-scale 设到各 host，继承进 shadow DOM
+  const applyFontScale = () => {
+    toolbarHost.style.setProperty('--ui-scale', String(uiFontScale));
+    multiConfirmHost.style.setProperty('--ui-scale', String(uiFontScale));
+  };
+  applyFontScale();
 
   // Settings dropdown panel
   settingsDropdown = document.createElement('div');
@@ -606,7 +721,7 @@ if (!window.__UI_CATCH_ACTIVE) {
   uploadSection.style.cssText = 'margin-bottom:14px;';
 
   const uploadLabel = document.createElement('label');
-  uploadLabel.style.cssText = 'display:block;padding:8px 14px;background:rgba(255,255,255,0.06);border:1px dashed rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);text-align:center;transition:all 0.2s;font-family:inherit;';
+  uploadLabel.style.cssText = 'display:block;padding:8px 14px;background:rgba(255,255,255,0.06);border:1px dashed rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;font-size:calc(13px * var(--ui-scale, 1));font-weight:600;color:rgba(255,255,255,0.7);text-align:center;transition:all 0.2s;font-family:inherit;';
   uploadLabel.textContent = '\u{1F4E4} 上传精灵图';
 
   const uploadInput = document.createElement('input');
@@ -641,12 +756,12 @@ if (!window.__UI_CATCH_ACTIVE) {
   fpsHeader.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;';
 
   const fpsTitle = document.createElement('span');
-  fpsTitle.style.cssText = 'font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.5px;text-transform:uppercase;';
+  fpsTitle.style.cssText = 'font-size:calc(12px * var(--ui-scale, 1));font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.5px;text-transform:uppercase;';
   fpsTitle.textContent = '动画速度';
   fpsHeader.appendChild(fpsTitle);
 
   const fpsValue = document.createElement('span');
-  fpsValue.style.cssText = 'font-size:11px;font-weight:600;color:#facc15;';
+  fpsValue.style.cssText = 'font-size:calc(12px * var(--ui-scale, 1));font-weight:600;color:#facc15;';
   fpsValue.textContent = spriteFps + ' FPS';
   fpsHeader.appendChild(fpsValue);
 
@@ -673,11 +788,11 @@ if (!window.__UI_CATCH_ACTIVE) {
   const anchorTitle = document.createElement('div');
   anchorTitle.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;';
   const anchorLabel = document.createElement('span');
-  anchorLabel.style.cssText = 'font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.5px;text-transform:uppercase;';
+  anchorLabel.style.cssText = 'font-size:calc(12px * var(--ui-scale, 1));font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.5px;text-transform:uppercase;';
   anchorLabel.textContent = '\u{1F3AF} 锚点定位';
   anchorTitle.appendChild(anchorLabel);
   const anchorCoords = document.createElement('span');
-  anchorCoords.style.cssText = 'font-size:11px;font-weight:600;color:#facc15;';
+  anchorCoords.style.cssText = 'font-size:calc(12px * var(--ui-scale, 1));font-weight:600;color:#facc15;';
   anchorCoords.textContent = `(${Math.round(anchorX * 100)}%, ${Math.round(anchorY * 100)}%)`;
   anchorTitle.appendChild(anchorCoords);
   anchorSection.appendChild(anchorTitle);
@@ -689,7 +804,7 @@ if (!window.__UI_CATCH_ACTIVE) {
     const wrap = document.createElement('div');
     wrap.style.cssText = 'flex:1;display:flex;align-items:center;gap:4px;';
     const lbl = document.createElement('span');
-    lbl.style.cssText = 'font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);';
+    lbl.style.cssText = 'font-size:calc(12px * var(--ui-scale, 1));font-weight:600;color:rgba(255,255,255,0.4);';
     lbl.textContent = labelText;
     wrap.appendChild(lbl);
     const input = document.createElement('input');
@@ -698,7 +813,7 @@ if (!window.__UI_CATCH_ACTIVE) {
     input.max = '100';
     input.step = '1';
     input.value = String(Math.round((axis === 'x' ? anchorX : anchorY) * 100));
-    input.style.cssText = 'width:50px;padding:4px 6px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#facc15;font-size:12px;font-weight:600;text-align:center;outline:none;font-family:inherit;';
+    input.style.cssText = 'width:50px;padding:4px 6px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#facc15;font-size:calc(13px * var(--ui-scale, 1));font-weight:600;text-align:center;outline:none;font-family:inherit;';
     input.addEventListener('input', () => {
       const val = Math.max(0, Math.min(100, parseInt(input.value) || 0));
       if (axis === 'x') anchorX = val / 100;
@@ -710,7 +825,7 @@ if (!window.__UI_CATCH_ACTIVE) {
     });
     wrap.appendChild(input);
     const pct = document.createElement('span');
-    pct.style.cssText = 'font-size:11px;color:rgba(255,255,255,0.3);';
+    pct.style.cssText = 'font-size:calc(12px * var(--ui-scale, 1));color:rgba(255,255,255,0.3);';
     pct.textContent = '%';
     wrap.appendChild(pct);
     return { wrap, input };
@@ -723,7 +838,7 @@ if (!window.__UI_CATCH_ACTIVE) {
   anchorSection.appendChild(anchorInputs);
 
   const anchorHint = document.createElement('div');
-  anchorHint.style.cssText = 'font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:6px;';
+  anchorHint.style.cssText = 'font-size:calc(11px * var(--ui-scale, 1));color:rgba(255,255,255,0.3);margin-bottom:6px;';
   anchorHint.textContent = '\u{1F446} 点击预览图：白点=鼠标，精灵跟随移动';
   anchorSection.appendChild(anchorHint);
 
@@ -805,7 +920,7 @@ if (!window.__UI_CATCH_ACTIVE) {
 
   // Clear button
   const clearSpriteBtn = document.createElement('button');
-  clearSpriteBtn.style.cssText = 'width:100%;padding:8px;border:1px solid rgba(255,154,154,0.3);border-radius:8px;background:rgba(255,154,154,0.08);color:#ff9a9a;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;';
+  clearSpriteBtn.style.cssText = 'width:100%;padding:8px;border:1px solid rgba(255,154,154,0.3);border-radius:8px;background:rgba(255,154,154,0.08);color:#ff9a9a;font-size:calc(13px * var(--ui-scale, 1));font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;';
   clearSpriteBtn.textContent = '移除精灵光标';
   clearSpriteBtn.addEventListener('click', () => {
     removeSpriteCursor();
@@ -818,26 +933,66 @@ if (!window.__UI_CATCH_ACTIVE) {
   collabBar.style.cssText = 'margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;gap:6px;';
 
   const collabP = document.createElement('span');
-  collabP.style.cssText = 'font-size:9px;font-weight:700;color:rgba(255,255,255,0.2);letter-spacing:0.3px;';
+  collabP.style.cssText = 'font-size:calc(9px * var(--ui-scale, 1));font-weight:700;color:rgba(255,255,255,0.2);letter-spacing:0.3px;';
   collabP.textContent = 'UI-Catch';
   collabBar.appendChild(collabP);
 
   const collabX = document.createElement('span');
-  collabX.style.cssText = 'font-size:9px;color:rgba(255,255,255,0.12);';
+  collabX.style.cssText = 'font-size:calc(9px * var(--ui-scale, 1));color:rgba(255,255,255,0.12);';
   collabX.textContent = '\u00D7';
   collabBar.appendChild(collabX);
 
   const collabPM = document.createElement('span');
-  collabPM.style.cssText = 'font-size:9px;font-weight:700;color:rgba(250,204,21,0.35);letter-spacing:0.3px;';
+  collabPM.style.cssText = 'font-size:calc(9px * var(--ui-scale, 1));font-weight:700;color:rgba(250,204,21,0.35);letter-spacing:0.3px;';
   collabPM.textContent = 'PixelMotionAI';
   collabBar.appendChild(collabPM);
 
   const collabDesc = document.createElement('div');
-  collabDesc.style.cssText = 'text-align:center;font-size:8px;color:rgba(255,255,255,0.15);margin-top:4px;letter-spacing:0.2px;';
+  collabDesc.style.cssText = 'text-align:center;font-size:calc(8px * var(--ui-scale, 1));color:rgba(255,255,255,0.15);margin-top:4px;letter-spacing:0.2px;';
   collabDesc.textContent = '\u{1F3A8} Powered by PixelMotionAI \u2014 Make Pixel Art Alive';
   collabBar.appendChild(collabDesc);
 
   settingsDropdown.appendChild(collabBar);
+
+  // 字体大小全局缩放（+/- 控制）
+  const fontScaleSection = document.createElement('div');
+  fontScaleSection.style.cssText = 'margin-bottom:14px;';
+  const fontScaleHeader = document.createElement('div');
+  fontScaleHeader.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;';
+  const fontScaleTitle = document.createElement('span');
+  fontScaleTitle.style.cssText = 'font-size:calc(12px * var(--ui-scale, 1));font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.5px;text-transform:uppercase;';
+  fontScaleTitle.textContent = '字体大小';
+  fontScaleHeader.appendChild(fontScaleTitle);
+  const fontScaleValue = document.createElement('span');
+  fontScaleValue.style.cssText = 'font-size:calc(12px * var(--ui-scale, 1));font-weight:600;color:#facc15;';
+  fontScaleValue.textContent = Math.round(uiFontScale * 100) + '%';
+  fontScaleHeader.appendChild(fontScaleValue);
+  fontScaleSection.appendChild(fontScaleHeader);
+  const fontScaleBtns = document.createElement('div');
+  fontScaleBtns.style.cssText = 'display:flex;gap:8px;';
+  const fsBtnStyle = 'flex:1;padding:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:calc(15px * var(--ui-scale, 1));font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;';
+  const fsMinus = document.createElement('button');
+  fsMinus.style.cssText = fsBtnStyle;
+  fsMinus.textContent = '−';
+  const fsPlus = document.createElement('button');
+  fsPlus.style.cssText = fsBtnStyle;
+  fsPlus.textContent = '+';
+  fontScaleBtns.appendChild(fsMinus);
+  fontScaleBtns.appendChild(fsPlus);
+  fontScaleSection.appendChild(fontScaleBtns);
+  fsMinus.addEventListener('click', () => {
+    uiFontScale = Math.max(0.8, Math.round((uiFontScale - 0.1) * 10) / 10);
+    localStorage.setItem('ui-catch-font-scale', String(uiFontScale));
+    applyFontScale();
+    fontScaleValue.textContent = Math.round(uiFontScale * 100) + '%';
+  });
+  fsPlus.addEventListener('click', () => {
+    uiFontScale = Math.min(2.0, Math.round((uiFontScale + 0.1) * 10) / 10);
+    localStorage.setItem('ui-catch-font-scale', String(uiFontScale));
+    applyFontScale();
+    fontScaleValue.textContent = Math.round(uiFontScale * 100) + '%';
+  });
+  settingsDropdown.insertBefore(fontScaleSection, settingsDropdown.firstChild);
 
   toolbarShadow.appendChild(settingsDropdown);
 
@@ -869,27 +1024,30 @@ if (!window.__UI_CATCH_ACTIVE) {
     document.getElementById(styleId)?.remove();
     if (marquee && marquee.parentNode) marquee.remove();
     if (toolbarHost && toolbarHost.parentNode) toolbarHost.remove();
+    if (multiConfirmHost && multiConfirmHost.parentNode) multiConfirmHost.remove();
     if (spriteInterval) { clearInterval(spriteInterval); spriteInterval = null; }
     if (spriteCanvas && spriteCanvas.parentNode) spriteCanvas.remove();
     if (glowDot && glowDot.parentNode) glowDot.remove();
     if (dropdownOutsideListener) { document.removeEventListener('click', dropdownOutsideListener); dropdownOutsideListener = null; }
     settingsDropdown = null;
     document.querySelectorAll('.ui-catch-hover').forEach(el => el.classList.remove('ui-catch-hover'));
+    document.querySelectorAll('.ui-catch-selected').forEach(el => el.classList.remove('ui-catch-selected'));
+    multiSelected.clear();
     dragState = 'idle';
     window.__UI_CATCH_ACTIVE = false;
     console.log('🐾 UI-Catch: 探针已安全退出。');
   };
 
   // 判断是否为插件自身 UI 元素 (跳过拦截)
-  const isOwnUI = (el) => el === toolbarHost || el === marquee || el.closest?.('[data-ui-catch-modal]');
+  const isOwnUI = (el) => el === toolbarHost || el === marquee || el === multiConfirmHost || el.closest?.('[data-ui-catch-modal]');
 
   // 4. 模式分流: pick=精准选取 / marquee=区域框选
   over = e => {
-    if (currentMode !== 'pick' || isOwnUI(e.target)) return;
+    if ((currentMode !== 'pick' && currentMode !== 'multi') || isOwnUI(e.target)) return;
     e.target.classList.add('ui-catch-hover');
   };
   out = e => {
-    if (currentMode !== 'pick' || isOwnUI(e.target)) return;
+    if ((currentMode !== 'pick' && currentMode !== 'multi') || isOwnUI(e.target)) return;
     e.target.classList.remove('ui-catch-hover');
   };
 
@@ -930,11 +1088,23 @@ if (!window.__UI_CATCH_ACTIVE) {
 
   onMouseup = e => {
     if (isOwnUI(e.target)) return;
+    if (isDraggingToolbar) return;
     e.preventDefault();
     e.stopPropagation();
+    armClickSwallow();
 
     if (currentMode === 'pick') {
       captureSingle(e);
+    } else if (currentMode === 'multi') {
+      const el = e.target;
+      if (multiSelected.has(el)) {
+        multiSelected.delete(el);
+        el.classList.remove('ui-catch-selected');
+      } else {
+        multiSelected.add(el);
+        el.classList.add('ui-catch-selected');
+      }
+      updateMultiConfirm();
     } else if (currentMode === 'marquee' && dragState !== 'idle') {
       if (dragState === 'dragging') {
         marquee.style.display = 'none';
@@ -966,12 +1136,23 @@ if (!window.__UI_CATCH_ACTIVE) {
     }
   };
 
+  // 装一个一次性 click 拦截器：捕获手势的 mouseup 之后会 fire 一个 click，
+  // 若不拦截，<a>/<button> 会触发跳转/提交。setTimeout 在 click fire 后拆除。
+  const armClickSwallow = () => {
+    const swallow = (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+    };
+    document.addEventListener('click', swallow, true);
+    setTimeout(() => document.removeEventListener('click', swallow, true), 0);
+  };
+
   // 单元素捕获
   const captureSingle = (e) => {
     const el = e.target;
     el.classList.remove('ui-catch-hover');
 
-    const cls = (el.getAttribute('class') || '').replace('ui-catch-hover', '').trim();
+    const cls = cleanClassStr(el.getAttribute('class') || '');
     const tag = el.tagName.toLowerCase();
     const id = el.id ? ` id="${el.id}"` : '';
     const cStr = cls ? ` class="${cls}"` : '';
@@ -1012,7 +1193,7 @@ if (!window.__UI_CATCH_ACTIVE) {
 
   // 区域捕获
   const captureArea = (container, childCount) => {
-    const cls = (container.getAttribute('class') || '').replace('ui-catch-hover', '').trim();
+    const cls = cleanClassStr(container.getAttribute('class') || '');
     const tag = container.tagName.toLowerCase();
     const id = container.id ? ` id="${container.id}"` : '';
     const cStr = cls ? ` class="${cls}"` : '';
@@ -1041,6 +1222,61 @@ if (!window.__UI_CATCH_ACTIVE) {
     });
     cleanup();
   };
+
+  const updateMultiConfirm = () => {
+    if (!multiConfirmBtn) return;
+    const n = multiSelected.size;
+    if (currentMode === 'multi' && n > 0) {
+      multiConfirmBtn.textContent = '✓ 完成 (' + n + ')';
+      multiConfirmHost.style.display = 'block';
+    } else {
+      multiConfirmHost.style.display = 'none';
+    }
+  };
+
+  const captureMulti = () => {
+    if (multiSelected.size === 0) return;
+    const elements = Array.from(multiSelected);
+    let details = `【多选捕获 · 共 ${elements.length} 个元素】`;
+    elements.forEach((el, i) => {
+      const cls = cleanClassStr(el.getAttribute('class') || '');
+      const tag = el.tagName.toLowerCase();
+      const id = el.id ? ` id="${el.id}"` : '';
+      const cStr = cls ? ` class="${cls}"` : '';
+      let txt = (el.innerText || el.textContent || '').replace(/\n/g, ' ').trim();
+      if (txt.length > 40) txt = txt.substring(0, 40) + '...';
+      const fp = `<${tag}${id}${cStr}>${txt}</${tag}>`;
+
+      let bestSelector = '', selectorLabel = '';
+      if (el.id && /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(el.id)) {
+        bestSelector = '#' + CSS.escape(el.id);
+        selectorLabel = 'ID';
+      } else if (el.getAttribute('data-testid')) {
+        bestSelector = `[data-testid="${CSS.escape(el.getAttribute('data-testid'))}"]`;
+        selectorLabel = 'data-testid';
+      } else {
+        const unique = getUniqueSelector(el);
+        if (unique !== tag || document.querySelectorAll(tag).length === 1) {
+          bestSelector = unique;
+          selectorLabel = 'Selector';
+        } else {
+          bestSelector = getCSSPath(el);
+          selectorLabel = 'Path';
+        }
+      }
+
+      const componentInfo = getComponentInfo(el);
+      details += `\n\n【元素 ${i + 1}】\n特征指纹: ${fp}\n定位${selectorLabel}: ${bestSelector}`;
+      if (componentInfo.framework && componentInfo.componentName) {
+        details += `\n组件: <${componentInfo.componentName}> (${componentInfo.framework})`;
+      }
+    });
+
+    showModal('success', { title: 'UI-Catch 多选捕捉成功！', details: details });
+    cleanup();
+  };
+
+  multiConfirmBtn.addEventListener('click', captureMulti);
 
   loadSavedSprite();
 

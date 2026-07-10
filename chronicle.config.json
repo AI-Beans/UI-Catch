@@ -1,0 +1,47 @@
+{
+  "projectName": "UI-Catch",
+  "tagline": "让 AI 指哪改哪，不用废话",
+  "developerName": "KKD304",
+  "brandVoice": "极客、利落、带点像素浪漫的独立开发者，讨厌冗余沟通，追求指哪打哪",
+  "targetAudience": "用 Cursor/Claude Code/Copilot 等 AI 编码工具改前端的前端开发者和独立开发者",
+  "productStage": "prototype",
+  "coreValue": "鼠标点一下，元素指纹+结构化 Prompt 直达剪贴板，粘贴给 AI 即可精准定位——消除人与 AI 之间「描述你要改哪个元素」的沟通成本",
+  "community": "即刻 + X/Twitter + GitHub",
+  "metrics": {
+    "users": "刚刚起步",
+    "paidRate": "开源免费",
+    "highlights": [
+      "两天内完成从 MVP 到完整工作台的 8 次迭代",
+      "精准/框选双模式 + 智能定位策略 + 框架感知 + 三栏 Prompt 构建器 + 像素精灵光标"
+    ]
+  },
+  "taboos": ["绝绝子", "震惊", "保姆级", "哭晕", "炸裂", "逆天", "yyds", "全网首发", "大厂", "赋能"],
+  "pmBlindSpots": [
+    "倾向于描述做了什么功能，而不是用户获得了什么能力",
+    "习惯从实现角度解释，不习惯从用户痛点角度切入"
+  ],
+  "identity": {
+    "origin": "独立开发者，用 AI 编码工具改前端时被「描述你要改哪个元素」逼到崩溃。相信工具应该消除沟通成本，而不是增加沟通步骤。",
+    "formativeExperiences": [
+      "用 Cursor 改前端时反复和 AI 来回描述元素位置——这种浪费时间催生了 UI-Catch",
+      "两天 8 个 commit 的迭代节奏——追求从痛点到解决方案的极短路径"
+    ],
+    "values": ["效率 > 形式", "具体 > 抽象", "减法 > 加法"],
+    "selfDeprecatingPatterns": [
+      "用「草台班子」形容自己的作品",
+      "自嘲追求像素精灵光标这种「不务正业」的细节"
+    ],
+    "languageDNA": {
+      "bannedPhrases": ["赋能", "闭环", "抓手", "沉淀", "不忘初心", "极致"],
+      "favoritePatterns": [
+        "具体场景还原式开头（你知道用 Cursor 改前端最烦的是什么吗？）",
+        "反问句式",
+        "破折号补充真实原因",
+        "「指哪打哪」式的口语化表达"
+      ],
+      "humorStyle": "自嘲 + 场景还原，不玩梗不追热点"
+    },
+    "voiceLearnings": []
+  },
+  "memories": []
+}

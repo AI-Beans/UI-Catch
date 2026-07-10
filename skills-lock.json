@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "Git2Content": {
+      "source": "AI-Beans/Git2Content",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/Git2Content/SKILL.md",
+      "computedHash": "e2161cfdb0dcbc0c95932d396393377b3e7bf68c0895f7201c96faa2114dd558"
+    }
+  }
+}

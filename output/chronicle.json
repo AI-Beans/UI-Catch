@@ -1,0 +1,479 @@
+{
+  "schemaVersion": "1.0.0",
+  "repoName": "UI-Catch",
+  "activeBranch": "main",
+  "lastGeneratedAt": "2026-06-05T23:35:32+08:00",
+  "developerName": "KKD304",
+  "stats": {
+    "totalCommits": 8,
+    "totalWords": 3694
+  },
+  "narrative": {
+    "tagline": "让 AI 指哪改哪，不用废话",
+    "origin": "每次让 AI 改前端，都要花三行字描述「那个蓝色的按钮在哪」。UI-Catch 的诞生就是为了消灭这种低效对话。一个 Chrome 扩展，hover 高亮，click 捕获，直接把元素指纹变成 AI 提示词。从第一行代码开始，目标就只有一个，让 AI 真正理解你想改什么。",
+    "chapters": [
+      {
+        "title": "从痛点到第一行代码",
+        "story": "跟 AI 改前端最累的不是改，而是解释。第一个版本用最粗暴的方式解决了这个问题，hover 高亮，click 复制，AI 终于知道你在说哪个元素。紧接着的靶向系统让精度再上一层，从 DOM 节点到 React 组件名，四层 fallback 确保 AI 不会改错地方。一个产品的起点，往往就是解决自己每天遇到的烦人事。",
+        "commitIds": [
+          1,
+          2
+        ]
+      },
+      {
+        "title": "从抓一个到抓一片",
+        "story": "单点捕获解决了按钮级的问题，但重构整个卡片怎么办。Marquee 框选模式让你像截图一样拖拽圈住任意区域，一次捕获整块 UI 的上下文。提示词里「重构」改成「处理」的细节，则让 AI 跳出思维定式，不只是搬代码，而是重新思考这片区域需要什么。从点到面，捕获的范围变了，AI 的回答方式也跟着变了。",
+        "commitIds": [
+          3,
+          4
+        ]
+      },
+      {
+        "title": "从工具到工作台",
+        "story": "当捕获本身足够好用之后，问题变成了怎么让提示词更好用。三栏设计把系统预设、需求描述、元素详情分开管理，localStorage 记住习惯，复制时智能合并。专家预设系统更进一步，根据点击的元素类型自动切换 AI 身份，点按钮和点表单的思考角度完全不同。工具进化成工作台，效率的提升来自工作流的重塑。",
+        "commitIds": [
+          5,
+          6
+        ]
+      },
+      {
+        "title": "像素灵魂注入",
+        "story": "功能齐全之后，开始问一个问题，这个工具用起来开心吗。16 帧像素动画光标，canvas 实时渲染，一个小精灵跟着鼠标在页面上跑。最后两个字的产品定位调整，从 Cursor 专属到 AI 通用，完成了从插件到桥梁的转身。技术解决了能不能用的问题，而细节和定位，决定了用户愿不愿意一直用下去。",
+        "commitIds": [
+          7,
+          8
+        ]
+      }
+    ],
+    "current": "UI-Catch 现在支持单元素捕获和区域框选两种模式，内置专家预设系统，配备像素动画光标，兼容所有主流 AI 编码工具。下一步的重点是继续打磨提示词工程的工作流体验，以及探索社区驱动的预设共享机制。",
+    "tone": "极客、利落、带点像素浪漫的独立开发者"
+  },
+  "curation": {
+    "totalScanned": 8,
+    "plan": [
+      {
+        "hashes": [
+          "74d60c9"
+        ],
+        "decision": "star",
+        "reason": "产品诞生的原点，「从痛点出发」的最佳叙事起点，直接解决开发者与 AI 沟通的核心痛点。"
+      },
+      {
+        "hashes": [
+          "692fcaa"
+        ],
+        "decision": "star",
+        "reason": "技术深度型功能升级，框架检测和四级靶向系统显著提升 AI 理解准确度，有强烈的技术自豪感。"
+      },
+      {
+        "hashes": [
+          "4b37ca4"
+        ],
+        "decision": "star",
+        "reason": "从单点到区域的捕获能力跃迁，扩展了使用场景，是产品能力边界的重要拓展。"
+      },
+      {
+        "hashes": [
+          "1031897"
+        ],
+        "decision": "star",
+        "reason": "小改动背后有大洞察，一个词的语义松绑展示了 prompt engineering 的深层思考。"
+      },
+      {
+        "hashes": [
+          "640242c"
+        ],
+        "decision": "star",
+        "reason": "从功能到工作台的质变，三栏设计重新定义了 prompt 工程的使用体验。"
+      },
+      {
+        "hashes": [
+          "5cae8da"
+        ],
+        "decision": "star",
+        "reason": "专家预设系统体现了「默认设定决定输出质量」的产品哲学，是 AI 工具设计的核心洞察。"
+      },
+      {
+        "hashes": [
+          "9fc4ea0"
+        ],
+        "decision": "star",
+        "reason": "像素光标是情感化设计的高光时刻，150 行代码只为让工具用起来开心，极具品牌辨识度。"
+      },
+      {
+        "hashes": [
+          "8c3a8bd"
+        ],
+        "decision": "star",
+        "reason": "两个字完成产品定位从单一工具到通用平台的跃迁，是战略级叙事的最佳收尾。"
+      }
+    ],
+    "recommendedOrder": [
+      "74d60c9",
+      "692fcaa",
+      "4b37ca4",
+      "1031897",
+      "640242c",
+      "5cae8da",
+      "9fc4ea0",
+      "8c3a8bd"
+    ],
+    "narrativeArc": "从解决一个具体的 AI 沟通痛点出发，逐步扩展捕获能力（单点→区域）、提升提示词质量（结构化→专家预设），最后注入设计灵魂和平台化定位，完成从一个实用小工具到完整工作台的进化。"
+  },
+  "developmentGuidance": {
+    "storyGaps": [
+      "缺少真实用户的使用场景故事和反馈",
+      "专家预设的设计理念（为什么选这些身份）尚未展开讲述",
+      "社区共建和预设分享机制还未落地"
+    ],
+    "nextMilestone": "社区驱动的自定义预设分享功能，让用户可以上传和下载针对不同框架、组件库的专家预设",
+    "suggestedCommitType": "社区驱动功能 — 兑现 cocreate 视角中反复邀请用户参与承诺的下一步",
+    "generatedAt": "2026-06-05T12:00:00+08:00"
+  },
+  "commits": [
+    {
+      "id": 1,
+      "hash": "74d60c9",
+      "branch": "main",
+      "dateLabel": "05.14",
+      "timestamp": "2026-05-14T09:36:46+08:00",
+      "commitTitle": "不用再跟 AI 描述按钮长啥样了",
+      "commitMessage": "feat: init UI-Catch Chrome MV3 extension",
+      "codeDiffSnippet": "(initial commit)",
+      "userInsight": "跟 AI 改前端时，描述元素位置消耗的精力有时比修改本身还多，开发者真正需要的是「指一下就行」的直觉式交互。",
+      "valueStatement": "UI-Catch 让 AI 终于能精确理解你想改哪个元素，告别长篇大论的位置描述。",
+      "perspectives": {
+        "authentic": {
+          "title": "🌱 一个 idea 到一行代码的距离",
+          "content": "每次跟 AI 说「改一下那个按钮」，都要解释半天按钮在哪、什么样式。UI-Catch 的第一个版本就是想消灭这种对话。hover 高亮，click 捕获，clipboard 复制，三步结束战斗。没有构建步骤，没有依赖，11 行的 background.js 直接注入 main world。有时候最简单的解法，反而是最可靠的。",
+          "brandVoiceTag": "🌱 极简信仰",
+          "visualHint": "📸 屏幕录制：鼠标 hover 到一个复杂的表单按钮上，出现高亮边框，点击后弹出「已复制到剪贴板」的 toast"
+        },
+        "visual": {
+          "title": "⚡ 3 秒把 UI 元素变成 AI 提示词",
+          "content": "跟 AI 改前端最烦的不是改不对，而是根本说不清楚要改哪。UI-Catch 让你像截图一样简单，hover 到元素上，点一下，完整的标签、class、ID、文本内容直接进剪贴板。粘贴给 Cursor 或 Claude，AI 终于知道你在说哪个按钮了。",
+          "brandVoiceTag": "⚡ 指哪打哪",
+          "visualHint": "📸 分屏对比：左边是浏览器里 hover 高亮的元素，右边是 VS Code 里粘贴好的 AI 提示词，AI 正在生成修改代码"
+        },
+        "cocreate": {
+          "title": "💬 你最常跟 AI 说的一句废话是什么",
+          "content": "「帮我改一下页面上那个蓝色的、带图标的、在导航栏右边的按钮」——这句话里真正有用的信息可能只有「按钮」两个字。如果有一个工具能让你指一下就行，你会在什么场景下最先想到用它？",
+          "brandVoiceTag": "💬 痛点共鸣",
+          "visualHint": "📸 聊天界面截图：用户正在给 AI 发一段冗长的元素描述文字，旁边配上无奈的emoji"
+        }
+      },
+      "activePerspective": "visual",
+      "story": "跟 AI 改前端，最累的不是改，而是解释。这个按钮，那个输入框，描述三行 AI 还是找错地方。UI-Catch 让一切变得简单。hover，click，粘贴，AI 终于知道你在说哪个元素了。三步之后，对话从「在哪」变成「怎么改」。",
+      "selectedPerspective": {
+        "perspective": "visual",
+        "reason": "首条 commit 是功能发布，visual 视角最能直接传达用户痛点到解决方案的转化，适合作为叙事开篇。"
+      },
+      "isPublished": false,
+      "socialMetrics": {
+        "likes": 0,
+        "bookmarks": 0
+      }
+    },
+    {
+      "id": 2,
+      "hash": "692fcaa",
+      "branch": "main",
+      "dateLabel": "05.14",
+      "timestamp": "2026-05-14T10:15:23+08:00",
+      "commitTitle": "AI 终于知道你在改哪个组件了",
+      "commitMessage": "feat: smart element targeting + glassmorphism modal + framework detection",
+      "codeDiffSnippet": "Added README.md with full feature list. Smart targeting: 4-level priority cascade (#id → data-testid → unique CSS Selector → CSS Path). Framework detection: React Fiber / Vue instance component name extraction. Glassmorphism modal for editing prompt.",
+      "userInsight": "开发者让 AI 改代码时，AI 改错元素的根本原因是选择器信息太模糊，需要让 AI 知道「这是 React 的 SubmitButton 组件」而不只是「一个 button 标签」。",
+      "valueStatement": "四层靶向 + 框架检测让 AI 从「猜元素」变成「精确到组件名手术」。",
+      "perspectives": {
+        "authentic": {
+          "title": "🌱 不是「一个按钮」，是「SubmitButton 组件」",
+          "content": "做过前端都知道，让 AI 改「第二个 div 里的 button」有多危险。UI-Catch 的靶向系统做了四层 fallback，从 ID 到 data-testid 到唯一选择器再到 CSS Path。更狠的是，它能从 React Fiber 和 Vue 实例里直接读出组件名。AI 拿到的不再是模糊的 DOM 片段，而是「SubmitButton from react-router」。",
+          "brandVoiceTag": "🌱 技术洁癖",
+          "visualHint": "📸 代码截图：UI-Catch 的提示词里包含 component: SubmitButton, framework: React, props: {...} 等结构化信息"
+        },
+        "visual": {
+          "title": "⚡ 从「大概这个位置」到「精确到组件」",
+          "content": "以前让 AI 改个按钮，十回有八回改错地方。UI-Catch 现在能识别 React 和 Vue 的组件名，直接把「Header 里的 LoginButton」写进提示词。再配合毛玻璃效果的编辑弹窗，捕获的元素信息一目了然，改之前还能手动微调。",
+          "brandVoiceTag": "⚡ 精准捕获",
+          "visualHint": "📸 屏幕录制：点击一个 React 组件，弹窗显示组件名、props、选择器路径，背景是毛玻璃模糊效果"
+        },
+        "cocreate": {
+          "title": "💬 你的 AI 有没有改错过元素",
+          "content": "明明说改登录按钮，结果把注册按钮的样式改了。这种错误不是 AI 笨，是信息给得不够精确。如果在提示词里直接带上组件名和框架信息，你觉得 AI 的理解准确度能提升多少？还有什么信息应该被自动捕获？",
+          "brandVoiceTag": "💬 精准实验",
+          "visualHint": "📸 对比图：左边是模糊的 DOM 选择器，右边是精确的组件级信息，AI 输出结果对比"
+        }
+      },
+      "activePerspective": "authentic",
+      "story": "让 AI 改前端，最怕的不是改得丑，是改错地方。UI-Catch 现在能读懂 React 和 Vue 的组件名，捕获的不只是 DOM 节点，而是「Header 里的 LoginButton」。四层靶向 fallback，从 ID 到 CSS Path，AI 终于不会对着空气输出了。",
+      "selectedPerspective": {
+        "perspective": "authentic",
+        "reason": "框架检测和四级靶向是技术深度型功能，authentic 视角能用开发者语言解释「为什么这很重要」，引发同行共鸣。"
+      },
+      "isPublished": false,
+      "socialMetrics": {
+        "likes": 0,
+        "bookmarks": 0
+      }
+    },
+    {
+      "id": 3,
+      "hash": "4b37ca4",
+      "branch": "main",
+      "dateLabel": "05.14",
+      "timestamp": "2026-05-14T11:42:08+08:00",
+      "commitTitle": "不止抓一个，还能框一片",
+      "commitMessage": "feat: mode toolbar + marquee area selection",
+      "codeDiffSnippet": "Major content.js refactor. Added SVG icon creation helper. Mode toolbar with Shadow DOM (pick/marquee toggle). Canvas-based marquee overlay for drag selection. Close button on toolbar.",
+      "userInsight": "单元素捕获适合修 bug，但重构整个卡片或区域时需要逐个元素解释，开发者渴望像截图一样「框选一整片」交给 AI。",
+      "valueStatement": "Marquee 框选让整块 UI 区域一次捕获，告别逐个元素描述的繁琐。",
+      "perspectives": {
+        "authentic": {
+          "title": "🌱 从「点选」到「框选」的进化",
+          "content": "单点捕获很好，但重构整个卡片怎么办？新版本加了 marquee 框选模式，Shadow DOM 里的工具栏一键切换，canvas 画布的拖拽框选覆盖在页面上。选一个区域，AI 拿到的是整个区块的上下文，不只是孤零零的一个按钮。",
+          "brandVoiceTag": "🌱 模式切换",
+          "visualHint": "📸 屏幕录制：切换到 marquee 模式，鼠标拖拽出一个蓝色半透明框，框住整个卡片组件，释放后捕获区域信息"
+        },
+        "visual": {
+          "title": "⚡ 一个框选，整块 UI 交给 AI",
+          "content": "改一个按钮用点选，改整个布局用框选。UI-Catch 的 marquee 模式让你像截图一样拖拽选择任意区域，AI 收到的是整个区块的完整结构。Shadow DOM 隔离的工具栏不会污染页面样式，canvas 覆盖层流畅跟手。",
+          "brandVoiceTag": "⚡ 区域捕获",
+          "visualHint": "📸 对比图：左边是单元素点选（小高亮框），右边是 marquee 框选（大区域半透明覆盖），展示两种模式的区别"
+        },
+        "cocreate": {
+          "title": "💬 你更常改单个元素，还是整块区域",
+          "content": "点选适合修 bug，框选适合重构。两种模式切换的设计，本质上是在问：你让 AI 改代码时，更多是在微调细节，还是在调整整体布局？有没有遇到过「框选比点选更需要」的场景？",
+          "brandVoiceTag": "💬 习惯探测",
+          "visualHint": "📸 网页截图，一半高亮单个按钮，另一半高亮整个卡片区域，中间用工具栏分隔"
+        }
+      },
+      "activePerspective": "visual",
+      "story": "点选改一个按钮很快，但重构整个卡片怎么办。UI-Catch 新增了 marquee 框选，像截图一样拖拽就能圈住任意区域。Shadow DOM 工具栏不污染页面，canvas 覆盖层跟手流畅。整块 UI 的上下文一次交给 AI，不用逐个元素解释了。",
+      "selectedPerspective": {
+        "perspective": "visual",
+        "reason": "框选是直观的交互升级，visual 视角最能展示「从点到面」的能力跃迁，用户一眼就能理解新模式的用途。"
+      },
+      "isPublished": false,
+      "socialMetrics": {
+        "likes": 0,
+        "bookmarks": 0
+      }
+    },
+    {
+      "id": 4,
+      "hash": "1031897",
+      "branch": "main",
+      "dateLabel": "05.14",
+      "timestamp": "2026-05-14T12:03:55+08:00",
+      "commitTitle": "一个词，让 AI 少点固执",
+      "commitMessage": "chore: soften area prompt wording",
+      "codeDiffSnippet": "Single line change — prompt from \"请帮我重构下面这个【区块/容器】及它的内部结构\" to \"请帮我处理下面这个【区块/容器】\"",
+      "userInsight": "开发者发现「重构」这个词在 AI 的语义空间里过于狭窄，限制了 AI 的创造力，改为更中性的「处理」反而能获得更灵活的建议。",
+      "valueStatement": "一个词的松绑，让 AI 从「只会搬代码」变成「会重新思考」的协作者。",
+      "perspectives": {
+        "authentic": {
+          "title": "🌱 一个词的语义边界",
+          "content": "「重构」在程序员心里有明确的含义，提取函数、拆分模块、不改变外部行为。但用户框选一片区域时，想要的可能是重新设计、调整布局、甚至重写组件。把提示词里的「重构」改成「处理」，给了 AI 更大的语义空间。有时候约束越少，结果越好。",
+          "brandVoiceTag": "🌱 语义微调",
+          "visualHint": "📸 代码 diff 截图：一行修改，「重构」→「处理」，旁边标注着巨大的影响"
+        },
+        "visual": {
+          "title": "⚡ 让 AI 跳出「重构」的思维定式",
+          "content": "说「重构」，AI 只会搬代码。说「处理」，AI 会思考这片区域到底需要什么。一个词的改动，打开了 AI 的创造力边界。框选模式下，这个改变尤其重要，因为你交给 AI 的往往是一整片需要重新思考的 UI。",
+          "brandVoiceTag": "⚡ 思维松绑",
+          "visualHint": "📸 分屏对比：左边 AI 输出僵化的代码重构，右边 AI 输出创造性的布局重新设计"
+        },
+        "cocreate": {
+          "title": "💬 你会怎么跟 AI 描述「改这个区域」",
+          "content": "「重构」「优化」「调整」「重新设计」……同一个需求，不同的词会让 AI 给出完全不同的方案。你在 prompt engineering 时，有没有发现某个词特别能限制或释放 AI 的创造力？",
+          "brandVoiceTag": "💬 用词实验",
+          "visualHint": "📸 思维导图：中心是「改这个区域」，分支是「重构」「优化」「处理」等词，每个词连接不同的 AI 输出风格"
+        }
+      },
+      "activePerspective": "cocreate",
+      "story": "说「重构」，AI 只会搬代码。说「处理」，AI 会重新思考。UI-Catch 把框选模式的提示词从「重构」改成了「处理」，就一个词，却打开了 AI 的创造力边界。很多时候，约束 AI 的不是能力，是发给它的指令本身。",
+      "selectedPerspective": {
+        "perspective": "cocreate",
+        "reason": "单字修改本身是小改动，cocreate 视角能把「用词如何影响 AI」变成开发者之间的讨论话题，引发 prompt engineering 的共鸣。"
+      },
+      "isPublished": false,
+      "socialMetrics": {
+        "likes": 0,
+        "bookmarks": 0
+      }
+    },
+    {
+      "id": 5,
+      "hash": "640242c",
+      "branch": "main",
+      "dateLabel": "05.14",
+      "timestamp": "2026-05-14T14:28:17+08:00",
+      "commitTitle": "Prompt 工程也需要工作台",
+      "commitMessage": "feat: three-panel prompt builder with collapsible details",
+      "codeDiffSnippet": "Major modal redesign. Three separate areas: system prompt preset + my needs + collapsible element details. localStorage auto-save. Copy integrates all three parts. README updated to reflect new workflow.",
+      "userInsight": "开发者每次给 AI 发指令都要重复写系统提示，三栏设计把重复劳动模板化，让 prompt 工程从即兴发挥变成可复用的工作流。",
+      "valueStatement": "三栏结构 + 自动保存把 prompt 工程从草稿纸升级为可复用的工作台。",
+      "perspectives": {
+        "authentic": {
+          "title": "🌱 把 Prompt 工程从草稿纸搬到工作台",
+          "content": "以前每次复制提示词都要重新写「你是一位前端专家……」。三栏设计把系统预设、需求描述、元素详情分开，localStorage 自动记住你的习惯。复制的时候三合一，不用每次从零拼凑。Prompt 工程终于有了一个像样点的界面。",
+          "brandVoiceTag": "🌱 工作流",
+          "visualHint": "📸 弹窗截图：三栏布局清晰展示系统预设、需求输入框、可折叠的元素详情面板"
+        },
+        "visual": {
+          "title": "⚡ 一个弹窗，搞定 Prompt 三板斧",
+          "content": "系统预设写一次，自动记住。需求描述随时改。元素详情默认折叠，需要时展开。复制按钮把三部分智能合并成一段完整的 AI 提示词。UI-Catch 的三栏设计，让每次给 AI 发指令都像填空一样简单。",
+          "brandVoiceTag": "⚡ 三板斧",
+          "visualHint": "📸 动画演示：在三栏中分别填写内容，点击复制，三栏内容合并成一段完整提示词粘贴到 AI 对话框"
+        },
+        "cocreate": {
+          "title": "💬 你的 Prompt 是即兴发挥，还是模板化",
+          "content": "有人每次跟 AI 对话都重新组织语言，有人有一套固定的「系统提示 + 需求 + 上下文」模板。UI-Catch 的三栏设计假设大多数人属于后者。你平时的 Prompt 工程习惯更像哪一种？",
+          "brandVoiceTag": "💬 习惯调查",
+          "visualHint": "📸 对比图：左边是杂乱的聊天记录里找 Prompt，右边是整齐的三栏工作台界面"
+        }
+      },
+      "activePerspective": "visual",
+      "story": "每次给 AI 发指令都要重新写「你是一位前端专家」。UI-Catch 的三栏设计把系统预设、需求描述、元素详情分开管理，localStorage 自动记住习惯。复制时智能合并，像填空一样简单。Prompt 工程终于不再是一团乱麻。",
+      "selectedPerspective": {
+        "perspective": "visual",
+        "reason": "三栏设计是显著的体验升级，visual 视角用「填空」这个比喻让抽象的工作流改进变得可感知。"
+      },
+      "isPublished": false,
+      "socialMetrics": {
+        "likes": 0,
+        "bookmarks": 0
+      }
+    },
+    {
+      "id": 6,
+      "hash": "5cae8da",
+      "branch": "main",
+      "dateLabel": "05.14",
+      "timestamp": "2026-05-14T16:51:42+08:00",
+      "commitTitle": "AI 的默认身份，决定了输出质量",
+      "commitMessage": "feat: expert system preset, remove summary row, reorder modal layout",
+      "codeDiffSnippet": "Removed summary row (redundant). Expert system auto-fills system prompt based on element type. Default system prompt upgraded to \"你是一位资深全栈开发专家，精通 React、Vue、Tailwind CSS...\". Reordered: system preset → element details → my needs.",
+      "userInsight": "开发者发现 AI 的输出质量和身份设定强相关，「有用的助手」和「资深全栈专家」对同样的代码问题会给出完全不同的方案。",
+      "valueStatement": "专家预设让 AI 从「通用助手」变成「懂你的技术搭档」，默认身份决定默认输出质量。",
+      "perspectives": {
+        "authentic": {
+          "title": "🌱 默认 Prompt 的质量，决定了一切",
+          "content": "把默认系统提示从「你是一个助手」升级到「资深全栈开发专家，精通 React、Vue、Tailwind CSS」，是因为发现 AI 的输出质量和身份设定强相关。更细的是，系统会根据点击的元素类型自动切换预设。点按钮和点表单，AI 拿到的专家视角不一样。这个细节，比加十个功能都重要。",
+          "brandVoiceTag": "🌱 预设哲学",
+          "visualHint": "📸 弹窗截图：系统预设栏显示「你是一位资深全栈开发专家……」，根据元素类型自动变化"
+        },
+        "visual": {
+          "title": "⚡ 点不同的元素，AI 切换不同的专家模式",
+          "content": "点按钮，AI 以交互设计专家的身份回答。点表单，AI 以数据验证专家的身份思考。UI-Catch 的专家预设系统会根据元素类型自动匹配最合适的角色设定。默认提示也升级到了全栈专家级别，告别「我是一个有用的助手」这种浪费 token 的开场白。",
+          "brandVoiceTag": "⚡ 专家切换",
+          "visualHint": "📸 对比图：点击按钮时显示「交互设计专家」预设，点击表单时显示「数据验证专家」预设，展示自动切换"
+        },
+        "cocreate": {
+          "title": "💬 你给 AI 的第一句话，是什么",
+          "content": "「你是一个有用的助手」和「你是一位资深全栈开发专家」，同样的技术问题，两种身份设定，输出可能天差地别。你在用 AI 编码工具时，会花时间打磨系统提示吗，还是直接开始对话？",
+          "brandVoiceTag": "💬 身份设定",
+          "visualHint": "📸 分屏对比：同样的代码问题，「助手」身份给出基础答案，「专家」身份给出架构级建议"
+        }
+      },
+      "activePerspective": "authentic",
+      "story": "「你是一个有用的助手」这种开场白，对编码任务来说就是浪费 token。UI-Catch 把默认身份升级成了「资深全栈开发专家」，还会根据点的元素类型自动切换预设。点按钮和点表单，AI 的思考角度完全不同。有时候，一个更好的默认设定，胜过十个新功能。",
+      "selectedPerspective": {
+        "perspective": "authentic",
+        "reason": "专家预设系统涉及 prompt engineering 的深层逻辑，authentic 视角能解释「为什么身份设定比功能更重要」，符合极客品牌的深度偏好。"
+      },
+      "isPublished": false,
+      "socialMetrics": {
+        "likes": 0,
+        "bookmarks": 0
+      }
+    },
+    {
+      "id": 7,
+      "hash": "9fc4ea0",
+      "branch": "main",
+      "dateLabel": "05.15",
+      "timestamp": "2026-05-15T09:12:33+08:00",
+      "commitTitle": "工具本身也应该让人开心",
+      "commitMessage": "feat: sprite cursor animation system with PixelMotionAI pixel-art style",
+      "codeDiffSnippet": "150+ lines of sprite cursor system. 16-frame pixel art animation following mouse. Canvas-based rendering. Configurable FPS, size, anchor. Per-frame active detection (scan canvas for opaque pixels). Settings dropdown with preview canvas. Glow dot effect.",
+      "userInsight": "开发者在效率工具上花大量时间，但很少有人在「用起来开心」这件事上投入，一个有趣的像素光标能让枯燥的捕获过程变成小小的享受。",
+      "valueStatement": "16 帧像素动画光标让捕获元素从「完成任务」变成「值得期待」的互动体验。",
+      "perspectives": {
+        "authentic": {
+          "title": "🌱 为什么一个捕获工具需要 150 行动画代码",
+          "content": "花了一整天写精灵光标系统，16 帧像素画逐帧跟随鼠标，canvas 渲染，可配置 FPS 和锚点。有人说这是过度设计。但用过的人都知道，当光标变成一个有性格的小像素人，捕获元素这件事突然变得很好玩。效率工具不一定非得冷冰冰。",
+          "brandVoiceTag": "🌱 像素浪漫",
+          "visualHint": "📸 录屏：一个可爱的像素艺术光标跟随鼠标移动，悬停时有发光效果，像一个小角色在页面上探险"
+        },
+        "visual": {
+          "title": "⚡ 这个光标会让你想多玩一会儿",
+          "content": "16 帧像素动画，实时 canvas 渲染，跟随鼠标平滑移动。UI-Catch 的光标不是简单的指针，而是一个有性格的像素精灵。设置面板还能调 FPS、大小、发光效果。本来只想快速改个按钮，结果玩了五分钟光标动画。",
+          "brandVoiceTag": "⚡ 像素灵魂",
+          "visualHint": "📸 特写：像素艺术光标的 16 帧动画序列展示，搭配设置面板的小预览画布"
+        },
+        "cocreate": {
+          "title": "💬 你的开发工具里，有「无意义但开心」的细节吗",
+          "content": "VS Code 的主题、终端的配色、甚至命令行的图标字体。开发者花很多时间在「没用但爽」的定制上。UI-Catch 的像素光标也是这种逻辑。你的工具链里，有没有哪个细节纯粹是为了让你心情好一点？",
+          "brandVoiceTag": "💬 心情工具",
+          "visualHint": "📸 拼贴图：各种开发工具中的「心情细节」，主题、配色、动画，UI-Catch 的像素光标在其中"
+        }
+      },
+      "activePerspective": "visual",
+      "story": "效率工具一定要冷冰冰吗。UI-Catch 给光标注入了像素灵魂，16 帧动画跟随鼠标，canvas 实时渲染，还能调 FPS 和发光效果。捕获元素的时候，一个小像素精灵在页面上跟着你跑。本来只想改个按钮，结果忍不住多玩了一会儿光标。",
+      "selectedPerspective": {
+        "perspective": "visual",
+        "reason": "像素光标是强视觉情感时刻，visual 视角最能传递「工具也可以有灵魂」的设计主张，是最有传播力的内容。"
+      },
+      "isPublished": false,
+      "socialMetrics": {
+        "likes": 0,
+        "bookmarks": 0
+      }
+    },
+    {
+      "id": 8,
+      "hash": "8c3a8bd",
+      "branch": "main",
+      "dateLabel": "05.15",
+      "timestamp": "2026-05-15T11:45:09+08:00",
+      "commitTitle": "两个字，从产品到平台",
+      "commitMessage": "chore: update description to '让 AI 指哪改哪'",
+      "codeDiffSnippet": "manifest.json description changed from \"让 Cursor 指哪改哪\" to \"让 AI 指哪改哪\". Two characters changed — but the product scope expanded from Cursor-only to all AI coding tools.",
+      "userInsight": "开发者意识到把产品绑定在单一工具上是在自我设限，两个字的变化完成了从「Cursor 插件」到「AI 通用桥梁」的定位跃迁。",
+      "valueStatement": "从 Cursor 专属到 AI 通用，两个字完成了产品从工具到平台的身份切换。",
+      "perspectives": {
+        "authentic": {
+          "title": "🌱 两个字的产品哲学",
+          "content": "把描述从「让 Cursor 指哪改哪」改成「让 AI 指哪改哪」，表面是两个字，底层是产品定位的切换。不绑定任何单一工具，Claude Code、Copilot、ChatGPT 的代码解释器，只要是 AI 编码助手，UI-Catch 都能服务。做桥梁，不做插件。",
+          "brandVoiceTag": "🌱 去绑定化",
+          "visualHint": "📸 manifest.json 的 diff 截图：「Cursor」→「AI」，背景是多个 AI 工具 logo 的拼贴"
+        },
+        "visual": {
+          "title": "⚡ 不限 Cursor，所有 AI 都能「指哪改哪」",
+          "content": "Claude Code、GitHub Copilot、ChatGPT，只要是 AI 编码工具，UI-Catch 都能让它精准定位页面元素。从 Cursor 专属到 AI 通用，两个字的变化背后是更大的野心。一个扩展，打通所有 AI 工作流。",
+          "brandVoiceTag": "⚡ 全平台",
+          "visualHint": "📸 多工具拼贴：Cursor、Claude Code、Copilot、ChatGPT 的界面，都显示使用 UI-Catch 的场景"
+        },
+        "cocreate": {
+          "title": "💬 你主力用哪款 AI 编码工具",
+          "content": "Cursor、Claude Code、Copilot、还是其他？UI-Catch 从 Cursor 专用扩展成了 AI 通用工具，但不同工具的交互习惯差异很大。你最希望 UI-Catch 对哪款工具做专门的适配或优化？",
+          "brandVoiceTag": "💬 工具偏好",
+          "visualHint": "📸 投票式界面：多个 AI 编码工具的 logo 排列，邀请用户选择"
+        }
+      },
+      "activePerspective": "cocreate",
+      "story": "「让 Cursor 指哪改哪」变成了「让 AI 指哪改哪」。就两个字，产品从单一工具插件变成了通用桥梁。Claude Code、Copilot、任何 AI 编码助手都能用。不绑定，不站队，做一个让所有 AI 都能精准定位前端元素的连接器。",
+      "selectedPerspective": {
+        "perspective": "cocreate",
+        "reason": "定位扩展是邀请社区参与的绝佳时机，cocreate 视角能直接询问用户的工具偏好，为后续适配方向收集信号。"
+      },
+      "isPublished": false,
+      "socialMetrics": {
+        "likes": 0,
+        "bookmarks": 0
+      }
+    }
+  ]
+}

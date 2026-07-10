@@ -1,0 +1,82 @@
+[
+  {
+    "id": "fb_001",
+    "title": "复制成功/失败后按钮文字与背景同色系，视觉混淆",
+    "status": "resolved",
+    "date": "2026-07-04",
+    "report": "复制按钮点击后，按钮字体颜色和背景颜色区分不开，视觉混淆。",
+    "root_cause": "success/failure 态用半透明强调色背景 + 同色系强调色文字（success: rgba(250,204,21,0.2) + #facc15；failure: rgba(255,154,154,0.2) + #ff9a9a）。同色相不同明度——眼睛读成同色块，边界感消失。默认按钮（#facc15 实心 + #000 黑字）反而高对比，因为对比的是黑/黄两个极端色相。",
+    "decision": "success/failure 态改为实心强调色填充 + 黑字（#facc15/#000 与 #ff9a9a/#000），打破同色系叠加；与默认按钮的黄底黑字设计语言一致。用文字（'已复制 ✓'/'复制失败'）传达语义。通用规则：状态反馈禁止'半透明 X + 文字 X'同色系叠加，必须跨色相（强调色+黑或强调色+白）。",
+    "files": ["UI-Catch-Extension/content.js"]
+  },
+  {
+    "id": "fb_002",
+    "title": "新增多选选取模式（第三模式，平行于精准/框选）",
+    "status": "resolved",
+    "date": "2026-07-04",
+    "report": "区域框选总是会嗅探到更多元素，有点不准。希望加一个多选选取模式，让用户自行点多次精准选取，避开框选的过度嗅探。",
+    "root_cause": "框选用 findElementsInRect 几何包含判断 + getLowestCommonAncestor 猜公共祖先——在密集 UI 下连带相邻元素、LCA 被推到过宽的容器，用户无法精确控制选了谁。",
+    "decision": "新增第三模式 multi：点击 toggle 选中（再点取消），底部浮动 Shadow DOM 确认钮'✓ 完成(N)'实时显示计数，点确认后 captureMulti 逐个生成指纹+定位符（与 captureSingle 同一套选择器瀑布：ID→data-testid→唯一Selector→CSSPath），不猜公共祖先——用户选谁就是谁。切入/切出 multi 清空选区；cleanup 移除 multiConfirmHost + .ui-catch-selected 残留 + multiSelected。视觉区分：hover=描边+0.45透明黄底（selected），未选=0.2（hover）。",
+    "files": ["UI-Catch-Extension/content.js", "AGENTS.md", "README.md"]
+  },
+  {
+    "id": "fb_003",
+    "title": "2K 屏 100% 缩放下全局字体偏小，可读性差",
+    "status": "resolved",
+    "date": "2026-07-04",
+    "report": "在 2K 屏幕、浏览器 100% 分辨率下，插件主要按钮字体和输入框文字（需求输入、系统提示词）阅读困难，整体字号偏小。",
+    "root_cause": "UI 大量使用 11–13px 字号（工具栏按钮 12px、输入框 13px、标签 11px），在高 PPI/2K 屏 100% 缩放下实际显示过小，可读性不足。",
+    "decision": "全局上调字号一档：工具栏主按钮 .mb 12px→14px；输入框/复制钮/确认钮 13px→15px；正文 14px→15px；标题 16px→17px；次要 UI（details/上传/清除/锚点输入）12px→13px；标签/设置文字 11px→12px；提示/三角 10px→11px。Collab 装饰文字 8–9px 与关闭图标 18px 保持。通用规则：主要交互文字不小于 12px，核心按钮/输入框不小于 14px。",
+    "files": ["UI-Catch-Extension/content.js"]
+  },
+  {
+    "id": "fb_004",
+    "title": "过滤生成类名（css-/sc-/CSS Modules hash），让 selector 和特征指纹对 AI 可读",
+    "status": "resolved",
+    "date": "2026-07-05",
+    "report": "用户反馈要让 AI 立马读懂捕获的元素。当前 styled-components/emotion/CSS Modules 生成的哈希类名（css-1a2b3c/sc-1x2y3z/__3Kf8a）会混进 selector 和特征指纹，AI 看不懂且重载后失效。",
+    "root_cause": "getUniqueSelector/getCSSPath 的 classTokens 过滤只验证'合法 CSS 标识符'，不区分'有语义的稳定 class'和'构建生成的哈希 class'。css-1a2b3c 合法 → 通过 → 进入 selector → AI 无法解读 + 下次构建失效。",
+    "decision": "加 isGeneratedClass(token) 正则：① 前缀 css-/sc-/jss-/emotion- + 5+ 字符 hash（要求含数字或大写，避免误杀 sc-header 这类真实类名）② CSS Modules __hash 后缀（要求含数字或大写，区分 BEM 的 __title/__header 全小写元素）。加 cleanClassStr(raw) helper 统一清洗。应用到 5 处：getUniqueSelector + getCSSPath 的 selector 生成（加 !isGeneratedClass 过滤），captureSingle/captureArea/captureMulti 的特征指纹（用 cleanClassStr 替代裸 replace）。端到端清洗：AI 看到的整段 Prompt 不含哈希噪声。来源：dom-selector-generation 调研的缺口 ①。",
+    "files": ["UI-Catch-Extension/content.js"]
+  },
+  {
+    "id": "fb_005",
+    "title": "捕获元素时点击触发真实跳转/提交（click 默认行为未拦截）",
+    "status": "resolved",
+    "date": "2026-07-05",
+    "report": "用户捕获 <a>/<button> 元素时，页面真的发生了跳转/提交，这不是用户想要的——捕获手势不应触发元素的真实行为。",
+    "root_cause": "DOM 点击手势是 mousedown → mouseup → click 三个独立事件。<a> 跳转和 <button> 表单提交的默认行为发生在 click 事件上。onMousedown/onMouseup 调了 preventDefault() 但这不会取消 click 的默认行为。而且 capture 函数在 mouseup 里调 cleanup() 移除监听器后，click 才 fire——所以即便有 click 监听器也已被移除。根本原因：从未有 click 事件监听器。",
+    "decision": "加 armClickSwallow() helper：在 onMouseup（处理页面元素的统一入口）里调用，装一个捕获阶段的 click 一次性拦截器（preventDefault + stopPropagation），用 setTimeout(0) 在 click fire 之后自动拆除。这样 pick/multi/marquee 三种模式的捕获手势都不会触发 <a>/<button> 的真实行为。一次性设计：不残留监听器，不影响插件自己的 UI 点击（经 shadow retarget 到 host 被 isOwnUI 跳过）。通用规则：捕获类工具必须拦截 click 默认行为，preventDefault 只在 mousedown/mouseup 上不够。",
+    "files": ["UI-Catch-Extension/content.js"]
+  },
+  {
+    "id": "fb_006",
+    "title": "工具栏固定顶部居中会挡住页面元素，需可拖动",
+    "status": "resolved",
+    "date": "2026-07-05",
+    "report": "工具栏出现的位置（固定顶部居中）有时挡住要捕获的界面元素，用户希望能移动工具栏。",
+    "root_cause": "toolbarHost 用 position:fixed;top:16px;left:50%;transform:translateX(-50%) 硬编码顶部居中，不可移动。顶部居中恰好是导航栏/标题区高频区，易遮挡。",
+    "decision": "工具栏最左加 grip 手柄（⠿），mousedown 进入拖动，document 级捕获阶段 mousemove/mouseup 更新位置并 clamp 到视口内，mouseup 存 localStorage(ui-catch-toolbar-pos)。下次激活读取并应用（带 clamp 防窗口缩小后越界）。关键：onMove/onUp 必须捕获阶段(true)，否则被 onMouseup 的 stopPropagation 挡掉（stopPropagation 不阻止同 target 同 phase，stopImmediatePropagation 才阻止）。onMouseup 加 isDraggingToolbar 守卫，拖动收尾的 mouseup 不触发捕获。",
+    "files": ["UI-Catch-Extension/content.js"]
+  },
+  {
+    "id": "fb_007",
+    "title": "录屏时 UI 字体太小，需全局字体缩放设置（+/- 调节、持久化）",
+    "status": "resolved",
+    "date": "2026-07-05",
+    "report": "用户录屏工具时发现捕获后的 UI 框（模态框等）字体太小。需要一个全局字体大小设置，有 +/- 号方便调，自动保存下次加载。",
+    "root_cause": "fb_003 虽然一次性上调了硬编码字号，但固定值无法适应录屏等不同场景的可变需求。所有 font-size 都是硬编码 px，没有缩放机制。",
+    "decision": "用 CSS 自定义属性 --ui-scale（默认 1，范围 0.8-2.0，步进 0.1）。把全部 28 处 font-size:Xpx 转成 font-size:calc(Xpx * var(--ui-scale, 1))。applyFontScale() 把 --ui-scale 设到 toolbarHost / multiConfirmHost / modal host（继承进各自 shadow DOM）。设置面板顶部加字体大小区：标题+当前百分比+[-][+]两按钮。+/- 改 uiFontScale、存 localStorage(ui-catch-font-scale)、调 applyFontScale、更新显示。showModal 创建 modal host 时也 setProperty --ui-scale，确保模态框也缩放。用 calc+var 而非 zoom：只缩字体不影响定位/padding，不破坏 fb_006 拖动。",
+    "files": ["UI-Catch-Extension/content.js"]
+  },
+  {
+    "id": "fb_008",
+    "title": "系统提示预设默认折叠 + 我的需求框放大",
+    "status": "resolved",
+    "date": "2026-07-05",
+    "report": "系统提示预设平时不改却占大片空间，我的需求框太小不好编辑。希望预设默认折叠，需求框放到最大。",
+    "root_cause": "sysTextarea 始终展开（min-height:72px），demandTextarea 只有 min-height:80px。预设占的垂直空间挤掉了需求框。",
+    "decision": "系统提示预设改为可折叠（sysToggle+sysPanel，默认 display:none），仿元素详情的折叠模式。demandTextarea min-height 80px→220px，利用预设折叠腾出的空间。copy 逻辑不受影响（sysTextarea 是闭包 const，移入 panel 不改变作用域）。",
+    "files": ["UI-Catch-Extension/content.js"]
+  }
+]

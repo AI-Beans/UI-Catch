@@ -1,0 +1,567 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "chronicle-v1.0.0",
+  "title": "Chronicle v1.0.0",
+  "description": "Data protocol for Git2Content — Git commits translated into 3-perspective social media content.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "repoName",
+    "activeBranch",
+    "lastGeneratedAt",
+    "developerName",
+    "stats",
+    "commits"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Protocol version. Must be 1.0.0."
+    },
+    "repoName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Project directory name (basename of project root)."
+    },
+    "activeBranch": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Current Git branch name."
+    },
+    "lastGeneratedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when this file was last generated or updated."
+    },
+    "developerName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Developer name from git config user.name."
+    },
+    "stats": {
+      "type": "object",
+      "required": [
+        "totalCommits",
+        "totalWords"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "totalCommits": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of commit entries in the commits array."
+        },
+        "totalWords": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total character count across all content fields in all perspectives."
+        }
+      }
+    },
+    "narrative": {
+      "type": "object",
+      "description": "Project development narrative — a holistic story generated from git history. Optional; omit if generation fails.",
+      "required": [
+        "tagline",
+        "origin",
+        "chapters",
+        "current",
+        "tone"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "tagline": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50,
+          "description": "One-line project description, punchy and memorable. ≤30 Chinese characters."
+        },
+        "origin": {
+          "type": "string",
+          "minLength": 10,
+          "description": "How and why the project started. 2-3 sentences, warm and relatable."
+        },
+        "chapters": {
+          "type": "array",
+          "description": "Narrative chapters, each representing a phase of development. 2-6 chapters typical.",
+          "items": {
+            "type": "object",
+            "required": [
+              "title",
+              "story",
+              "commitIds"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 30,
+                "description": "Chapter/phase title. ≤20 Chinese characters."
+              },
+              "story": {
+                "type": "string",
+                "minLength": 20,
+                "description": "Narrative paragraph about this phase. 100-200 Chinese characters."
+              },
+              "commitIds": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "description": "References to commit id values in the commits array."
+              }
+            }
+          }
+        },
+        "current": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Where the project is now and what's next. 2-3 sentences."
+        },
+        "tone": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Overall personality tag capturing the developer's voice."
+        }
+      }
+    },
+    "projectIntelligence": {
+      "type": "object",
+      "description": "Project intelligence snapshot from 反哺 analysis. Populated by Step 6c when run count >= 3. Optional.",
+      "additionalProperties": false,
+      "properties": {
+        "valueMap": {
+          "type": "object",
+          "description": "Core user values, unfulfilled promises, and coverage assessment.",
+          "additionalProperties": false,
+          "properties": {
+            "coreUserValues": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The 2-3 recurring user value themes across all Value Chains."
+            },
+            "unfulfilledPromises": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Open questions/promises from cocreate perspectives never followed up."
+            },
+            "valueCoverage": {
+              "type": "string",
+              "enum": [
+                "high",
+                "medium",
+                "low"
+              ],
+              "description": "How much of the identified user value space is covered by commits."
+            }
+          }
+        },
+        "trajectory": {
+          "type": "object",
+          "description": "Project direction assessment.",
+          "additionalProperties": false,
+          "properties": {
+            "direction": {
+              "type": "string",
+              "enum": [
+                "deepening",
+                "broadening",
+                "drifting",
+                "stuck"
+              ],
+              "description": "Project trajectory direction."
+            },
+            "evidence": {
+              "type": "string",
+              "description": "Why this assessment, referencing narrative chapters or commit patterns."
+            },
+            "lastAssessed": {
+              "type": "string",
+              "format": "date-time",
+              "description": "When this assessment was made."
+            }
+          }
+        },
+        "momentum": {
+          "type": "object",
+          "description": "Commit cadence and value density trends.",
+          "additionalProperties": false,
+          "properties": {
+            "commitCadence": {
+              "type": "string",
+              "enum": [
+                "accelerating",
+                "steady",
+                "slowing"
+              ],
+              "description": "Recent commit frequency trend."
+            },
+            "userValueDensity": {
+              "type": "string",
+              "enum": [
+                "increasing",
+                "stable",
+                "decreasing"
+              ],
+              "description": "Recent commits' user-value density trend."
+            },
+            "lastAssessed": {
+              "type": "string",
+              "format": "date-time",
+              "description": "When this assessment was made."
+            }
+          }
+        },
+        "nextMoveSuggestions": {
+          "type": "array",
+          "description": "Suggested next moves with status lifecycle.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "what": {
+                "type": "string",
+                "description": "The concrete suggested next move."
+              },
+              "why": {
+                "type": "string",
+                "description": "Why this and not something else."
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Commit hashes, narrative chapter titles, config fields, or cocreate quotes."
+              },
+              "priority": {
+                "type": "string",
+                "enum": [
+                  "critical",
+                  "high",
+                  "medium"
+                ],
+                "description": "Suggestion priority level."
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "suggested",
+                  "accepted",
+                  "dismissed",
+                  "done",
+                  "stale"
+                ],
+                "description": "Current status of this suggestion."
+              },
+              "suggestedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When this suggestion was first made."
+              },
+              "resolvedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time",
+                "description": "When this suggestion was resolved (accepted, done, or dismissed)."
+              },
+              "dismissReason": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Why the user rejected this suggestion."
+              }
+            }
+          }
+        }
+      }
+    },
+    "commits": {
+      "type": "array",
+      "description": "Ordered array of commit entries. Earliest first.",
+      "items": {
+        "$ref": "#/definitions/commitEntry"
+      }
+    },
+    "curation": {
+      "type": "object",
+      "description": "Editorial curation decisions — which commits to tell, group, or skip. Optional; generated by Step 2.",
+      "additionalProperties": false,
+      "required": ["totalScanned", "plan"],
+      "properties": {
+        "totalScanned": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of commits scanned during curation."
+        },
+        "plan": {
+          "type": "array",
+          "description": "Array of curation decisions.",
+          "items": {
+            "type": "object",
+            "required": ["hashes", "decision", "reason"],
+            "additionalProperties": false,
+            "properties": {
+              "hashes": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Commit hashes covered by this decision."
+              },
+              "decision": {
+                "type": "string",
+                "enum": ["star", "group", "skip"],
+                "description": "Editorial decision: star (standalone post), group (merged with other commits), or skip (no post)."
+              },
+              "reason": {
+                "type": "string",
+                "description": "Why this decision was made. 1-2 sentences."
+              }
+            }
+          }
+        },
+        "recommendedOrder": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Suggested reading order for posts. Grouped commits shown as 'hash+hash'."
+        },
+        "narrativeArc": {
+          "type": "string",
+          "description": "One-line summary of the overall story arc across selected posts."
+        }
+      }
+    },
+    "developmentGuidance": {
+      "type": "object",
+      "description": "Strategic guidance for what to build next, based on narrative gaps. Optional; omit if no meaningful guidance.",
+      "additionalProperties": false,
+      "required": ["storyGaps", "nextMilestone", "suggestedCommitType", "generatedAt"],
+      "properties": {
+        "storyGaps": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What user needs or stories are missing from the current commit history."
+        },
+        "nextMilestone": {
+          "type": "string",
+          "description": "What to build next to create the strongest social media story."
+        },
+        "suggestedCommitType": {
+          "type": "string",
+          "description": "What kind of commit would be most compelling next (feature/design/community)."
+        },
+        "generatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this guidance was generated."
+        }
+      }
+    }
+  },
+  "definitions": {
+    "commitEntry": {
+      "type": "object",
+      "required": [
+        "id",
+        "hash",
+        "branch",
+        "dateLabel",
+        "timestamp",
+        "commitTitle",
+        "commitMessage",
+        "codeDiffSnippet",
+        "perspectives",
+        "activePerspective",
+        "isPublished",
+        "socialMetrics"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "userInsight": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The core user frustration or motivation this commit addresses. 1-2 sentences. null if no user-facing impact."
+        },
+        "valueStatement": {
+          "type": "string",
+          "description": "One sentence: the user transformation this commit delivers. Grounded in the Value Extraction Chain."
+        },
+        "id": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Sequential identifier (1, 2, 3...)."
+        },
+        "hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,}$",
+          "description": "Short Git commit hash (7+ hex characters)."
+        },
+        "branch": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Branch name where this commit was made."
+        },
+        "dateLabel": {
+          "type": "string",
+          "pattern": "^[0-9]{2}\\.[0-9]{2}$",
+          "description": "Date in MM.DD format."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Full ISO 8601 timestamp from git %aI."
+        },
+        "commitTitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30,
+          "description": "Short descriptive title in Chinese, ≤25 characters."
+        },
+        "commitMessage": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Original Git commit message (subject line)."
+        },
+        "codeDiffSnippet": {
+          "type": "string",
+          "description": "Truncated code diff for context. ≤1500 chars. Empty string if unavailable."
+        },
+        "perspectives": {
+          "type": "object",
+          "required": [
+            "authentic",
+            "visual",
+            "cocreate"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "authentic": {
+              "$ref": "#/definitions/perspective"
+            },
+            "visual": {
+              "$ref": "#/definitions/perspective"
+            },
+            "cocreate": {
+              "$ref": "#/definitions/perspective"
+            }
+          }
+        },
+        "activePerspective": {
+          "type": "string",
+          "enum": [
+            "authentic",
+            "visual",
+            "cocreate"
+          ],
+          "default": "authentic",
+          "description": "Currently selected perspective."
+        },
+        "isPublished": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this commit's content has been published."
+        },
+        "socialMetrics": {
+          "$ref": "#/definitions/socialMetrics"
+        },
+        "story": {
+          "type": "string",
+          "description": "Blended reader-facing narrative — the single post shown to the user. 80-150 Chinese chars. No developer ego.",
+          "minLength": 10,
+          "maxLength": 500
+        },
+        "selectedPerspective": {
+          "type": "object",
+          "description": "Which perspective the agent selected as best for this commit, and why.",
+          "properties": {
+            "perspective": {
+              "type": "string",
+              "enum": [
+                "authentic",
+                "visual",
+                "cocreate"
+              ],
+              "description": "The selected perspective key"
+            },
+            "reason": {
+              "type": "string",
+              "description": "Why this perspective was chosen"
+            }
+          },
+          "required": [
+            "perspective",
+            "reason"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+      "perspective": {
+      "type": "object",
+      "required": [
+        "title",
+        "content",
+        "brandVoiceTag",
+        "visualHint"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30,
+          "description": "Post title with one emoji, ≤25 characters."
+        },
+        "content": {
+          "type": "string",
+          "minLength": 0,
+          "description": "Full post body text, 80-150 Chinese characters (3-4 sentences). Empty string for skipped commits."
+        },
+        "brandVoiceTag": {
+          "type": "string",
+          "minLength": 0,
+          "description": "Voice classification tag. Format: emoji + tag text (e.g., '🌱 真实不装'). Empty string for skipped commits."
+        },
+        "visualHint": {
+          "type": "string",
+          "minLength": 0,
+          "description": "Concrete suggestion for accompanying image or video. Empty string for skipped commits."
+        }
+      }
+    },
+    "socialMetrics": {
+      "type": "object",
+      "required": [
+        "likes",
+        "bookmarks"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "likes": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Number of likes."
+        },
+        "bookmarks": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Number of bookmarks/saves."
+        }
+      }
+    }
+  }
+}
