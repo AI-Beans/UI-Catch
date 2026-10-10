@@ -250,16 +250,23 @@ if (!window.__UI_CATCH_ACTIVE) {
     const body = document.createElement('div');
     body.style.cssText = 'color:rgba(255,255,255,0.85);font-size:calc(15px * var(--ui-scale, 1));line-height:1.6;';
 
-    // 系统提示预设（可折叠，默认收起）
+    // 处理指令（可折叠，默认收起）
     const sysToggle = document.createElement('button');
     sysToggle.style.cssText = 'width:100%;text-align:left;padding:8px 0;background:none;border:none;color:rgba(255,255,255,0.4);font-size:calc(13px * var(--ui-scale, 1));cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:8px;font-family:inherit;';
-    sysToggle.innerHTML = '<span style="font-size:calc(11px * var(--ui-scale, 1));">▶</span> 系统提示预设';
+    sysToggle.innerHTML = '<span style="font-size:calc(11px * var(--ui-scale, 1));">▶</span> 处理指令';
 
     const sysPanel = document.createElement('div');
     sysPanel.style.cssText = 'display:none;padding:12px 14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.06);border-radius:8px;margin-bottom:16px;';
 
     const sysTextarea = document.createElement('textarea');
-    sysTextarea.value = data.systemPreset || localStorage.getItem('ui-catch-system') || '你是一位资深全栈开发专家，精通 React、Vue、Tailwind CSS 和现代前端设计系统。我在调整前端 UI，请帮我处理下面这个元素：';
+    const OLD_SYS_DEFAULTS = [
+      '你是一位资深全栈开发专家，精通 React、Vue、Tailwind CSS 和现代前端设计系统。我在调整前端 UI，请帮我处理下面这个元素：',
+      '你是一位资深全栈开发专家，精通主流前后端框架与数据库。我从一个页面元素切入调整功能，请帮我处理这个元素及其关联的前后端代码：'
+    ];
+    const NEW_SYS_DEFAULT = '请准确定位并处理这个元素及其关联的前后端代码。';
+    let savedSys = localStorage.getItem('ui-catch-system');
+    if (OLD_SYS_DEFAULTS.includes(savedSys)) savedSys = null;
+    sysTextarea.value = data.systemPreset || savedSys || NEW_SYS_DEFAULT;
     sysTextarea.style.cssText = 'width:100%;min-height:72px;resize:vertical;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:calc(15px * var(--ui-scale, 1));color:#e8e8e8;line-height:1.5;outline:none;box-sizing:border-box;';
     sysTextarea.onfocus = () => { sysTextarea.style.borderColor = 'rgba(250,204,21,0.4)'; };
     sysTextarea.onblur = () => { sysTextarea.style.borderColor = 'rgba(255,255,255,0.08)'; };
@@ -269,7 +276,7 @@ if (!window.__UI_CATCH_ACTIVE) {
     sysToggle.addEventListener('click', () => {
       sysExpanded = !sysExpanded;
       sysPanel.style.display = sysExpanded ? 'block' : 'none';
-      sysToggle.innerHTML = `<span style="font-size:calc(11px * var(--ui-scale, 1));">${sysExpanded ? '▼' : '▶'}</span> 系统提示预设`;
+      sysToggle.innerHTML = `<span style="font-size:calc(11px * var(--ui-scale, 1));">${sysExpanded ? '▼' : '▶'}</span> 处理指令`;
     });
 
     body.appendChild(sysToggle);
@@ -324,8 +331,10 @@ if (!window.__UI_CATCH_ACTIVE) {
     copyBtn.onmouseenter = () => { copyBtn.style.background = '#fde047'; copyBtn.style.boxShadow = '1px 1px 0px 0px rgba(0,0,0,0.3)'; copyBtn.style.transform = 'translate(1px,1px)'; };
     copyBtn.onmouseleave = () => { copyBtn.style.background = '#facc15'; copyBtn.style.boxShadow = '2px 2px 0px 0px rgba(0,0,0,0.3)'; copyBtn.style.transform = 'translate(0,0)'; };
     copyBtn.addEventListener('click', async () => {
-      const parts = [sysTextarea.value.trim()];
+      const parts = [];
       if (data.details) parts.push(data.details);
+      const sysVal = sysTextarea.value.trim();
+      if (sysVal) parts.push(sysVal);
       const demand = demandTextarea.value.trim();
       if (demand) parts.push('【我的需求】\n' + demand);
       const text = parts.join('\n\n') + '\n';

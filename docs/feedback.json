@@ -78,5 +78,23 @@
     "root_cause": "sysTextarea 始终展开（min-height:72px），demandTextarea 只有 min-height:80px。预设占的垂直空间挤掉了需求框。",
     "decision": "系统提示预设改为可折叠（sysToggle+sysPanel，默认 display:none），仿元素详情的折叠模式。demandTextarea min-height 80px→220px，利用预设折叠腾出的空间。copy 逻辑不受影响（sysTextarea 是闭包 const，移入 panel 不改变作用域）。",
     "files": ["UI-Catch-Extension/content.js"]
+  },
+  {
+    "id": "fb_009",
+    "title": "默认系统提示词迭代为全栈通用版（不限于前端 UI）",
+    "status": "resolved",
+    "date": "2026-07-05",
+    "report": "默认提示词只点前端（React/Vue/Tailwind + 调整前端 UI），但实际使用常需从元素追到后端代码，希望更通用。",
+    "decision": "默认值改为：'你是一位资深全栈开发专家，精通主流前后端框架与数据库。我从一个页面元素切入调整功能，请帮我处理这个元素及其关联的前后端代码：'。三处变化：技术栈从 React/Vue/Tailwind 泛化为'主流前后端框架与数据库'；任务从'调整前端 UI'泛化为'从一个页面元素切入调整功能'；行动从'处理下面这个元素'扩展为'处理这个元素及其关联的前后端代码'（明确邀请 AI 追到后端）。加迁移：localStorage 存的值若等于旧默认则视为未自定义，升级到新默认；自定义过的原样保留（OLD_SYS_DEFAULT 常量比对）。",
+    "files": ["UI-Catch-Extension/content.js"]
+  },
+  {
+    "id": "fb_010",
+    "title": "提示词重构：元素在前+处理指令收尾，去掉角色开场白，适合内联粘贴",
+    "status": "resolved",
+    "date": "2026-07-05",
+    "report": "用户实际工作流是在 coding agent 对话框里打自己的需求，说'改这个元素'后直接粘贴。当前复制格式以角色开场白（你是一位资深全栈开发专家...）打头，内联粘贴时违和。角色开场其实冗余（coding agent 自带），真正有价值的是'对这个元素怎么处理'的指令，目的是准确。",
+    "decision": "三处改动：① 默认提示词去掉角色开场，改为聚焦准确处理的指令'请准确定位并处理这个元素及其关联的前后端代码。'（强调准确定位+全栈范围）。② 复制顺序倒过来：元素信息→处理指令→（如有）需求；元素紧跟用户说的'改这个元素：'，指令自然收尾，内联不违和。③ '系统提示预设'改名'处理指令'（不再是 system prompt 概念）。迁移：localStorage 存的值若命中两个旧默认（React/Vue 版 + fb_009 全栈版）任一则视为未自定义，升级到新默认。空需求不输出（避免占位噪声）。",
+    "files": ["UI-Catch-Extension/content.js", "README.md"]
   }
 ]
